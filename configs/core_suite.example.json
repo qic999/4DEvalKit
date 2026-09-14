@@ -1,0 +1,61 @@
+{
+  "defaults": {
+    "model": "YOUR_SERVED_LLM_NAME",
+    "base_url": "http://localhost:8000/v1",
+    "temperature": 0.0,
+    "seed": 0,
+    "max_tokens": 512,
+    "concurrency": 8,
+    "batch_size": 16
+  },
+  "variants": [
+    {
+      "name": "full_pred3d",
+      "geometry_template": "data/geometry/spatial_encoder_v2/{benchmark}.json"
+    },
+    {
+      "name": "small_pred3d",
+      "geometry_template": "data/geometry/spatial_encoder_v2_small/{benchmark}.json"
+    }
+  ],
+  "benchmarks": [
+    {
+      "benchmark": "BLINK"
+    },
+    {
+      "benchmark": "CV-Bench"
+    },
+    {
+      "benchmark": "3DSRBench"
+    },
+    {
+      "benchmark": "EmbSpatial-Bench"
+    },
+    {
+      "benchmark": "MindCube"
+    },
+    {
+      "benchmark": "MMSI-Bench"
+    },
+    {
+      "benchmark": "Q-Spatial-Bench"
+    },
+    {
+      "benchmark": "SAT"
+    },
+    {
+      "benchmark": "VSI-Bench"
+    },
+    {
+      "benchmark": "ViewSpatial-Bench"
+    },
+    {
+      "benchmark": "STI-Bench",
+      "require_tracks": true
+    },
+    {
+      "benchmark": "VLM4D",
+      "require_tracks": true
+    }
+  ]
+}

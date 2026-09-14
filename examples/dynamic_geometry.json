@@ -1,0 +1,144 @@
+{
+  "scenes": {
+    "motion_1": {
+      "schema_version": "4deval.geometry.v1",
+      "units": "m",
+      "coordinate_frame": "world_z_up",
+      "tracks": [
+        {
+          "track_id": "cube_1",
+          "category": "cube",
+          "observations": [
+            {
+              "timestamp": 0,
+              "center": [
+                0,
+                0,
+                1
+              ],
+              "size": [
+                1,
+                1,
+                1
+              ],
+              "quaternion_xyzw": [
+                0,
+                0,
+                0,
+                1
+              ],
+              "bbox_2d": [
+                10,
+                10,
+                30,
+                30
+              ]
+            },
+            {
+              "timestamp": 1,
+              "center": [
+                2,
+                0,
+                1
+              ],
+              "size": [
+                1,
+                1,
+                1
+              ],
+              "quaternion_xyzw": [
+                0,
+                0,
+                0,
+                1
+              ],
+              "bbox_2d": [
+                30,
+                10,
+                50,
+                30
+              ]
+            }
+          ]
+        }
+      ],
+      "provenance": {
+        "geometry_source": "synthetic_fixture",
+        "encoder": "none",
+        "checkpoint": null,
+        "proposal_source": "synthetic",
+        "label_source": "synthetic"
+      }
+    },
+    "motion_2": {
+      "schema_version": "4deval.geometry.v1",
+      "units": "m",
+      "coordinate_frame": "world_z_up",
+      "tracks": [
+        {
+          "track_id": "cube_1",
+          "category": "cube",
+          "observations": [
+            {
+              "timestamp": 0,
+              "center": [
+                0,
+                0,
+                1
+              ],
+              "size": [
+                1,
+                1,
+                1
+              ],
+              "quaternion_xyzw": [
+                0,
+                0,
+                0,
+                1
+              ],
+              "bbox_2d": [
+                10,
+                10,
+                30,
+                30
+              ]
+            },
+            {
+              "timestamp": 1,
+              "center": [
+                2,
+                0,
+                1
+              ],
+              "size": [
+                1,
+                1,
+                1
+              ],
+              "quaternion_xyzw": [
+                0,
+                0,
+                0,
+                1
+              ],
+              "bbox_2d": [
+                30,
+                10,
+                50,
+                30
+              ]
+            }
+          ]
+        }
+      ],
+      "provenance": {
+        "geometry_source": "synthetic_fixture",
+        "encoder": "none",
+        "checkpoint": null,
+        "proposal_source": "synthetic",
+        "label_source": "synthetic"
+      }
+    }
+  }
+}

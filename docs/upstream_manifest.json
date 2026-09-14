@@ -1,0 +1,187 @@
+{
+  "repository": "https://github.com/DeepCybo-PhysAI/PhysBrainEvalKit",
+  "revision": "4b37ca2f184bd76b98827481a6739f89ea06d730",
+  "changes": "Only core import paths rewritten for isolation. See README for protocol differences in the new runner.",
+  "files": [
+    {
+      "upstream_path": "benchmark/blink.py",
+      "local_path": "benchmark/physbrain/blink.py",
+      "upstream_sha256": "f76008759b2999318a993cf798df4a62db3d85f81c3986a4cb504a7f27f2df20"
+    },
+    {
+      "upstream_path": "benchmark/cvbench.py",
+      "local_path": "benchmark/physbrain/cvbench.py",
+      "upstream_sha256": "0981e24c1b4113c231d186d9a0521606da0ae202ef54598696f39d28d100525c"
+    },
+    {
+      "upstream_path": "benchmark/threedsrbench.py",
+      "local_path": "benchmark/physbrain/threedsrbench.py",
+      "upstream_sha256": "b4d6b1cf7cdd5a86c5b295f307b706b4fa970bbc483a8a3cd5e6168463e988e1"
+    },
+    {
+      "upstream_path": "benchmark/embspatial.py",
+      "local_path": "benchmark/physbrain/embspatial.py",
+      "upstream_sha256": "4966235641c59c2e62b58ecbd269859f658c1e216545cb7825bba791d40a045d"
+    },
+    {
+      "upstream_path": "benchmark/mindcube.py",
+      "local_path": "benchmark/physbrain/mindcube.py",
+      "upstream_sha256": "3929140c030d27af5fda62eefd61d523080b0771e601dcabb31b483c22aca77d"
+    },
+    {
+      "upstream_path": "benchmark/mmsi_bench.py",
+      "local_path": "benchmark/physbrain/mmsi_bench.py",
+      "upstream_sha256": "817b44b70aee4adbe72f1160c83d641d386efda1d174a3bd28ba0be2a7126a2e"
+    },
+    {
+      "upstream_path": "benchmark/qspatial.py",
+      "local_path": "benchmark/physbrain/qspatial.py",
+      "upstream_sha256": "5cbc5a4ffdf4a1fb1f7f02c87cc748dd611c0c1d21b3fb8463535c3543b90309"
+    },
+    {
+      "upstream_path": "benchmark/robospatial.py",
+      "local_path": "benchmark/physbrain/robospatial.py",
+      "upstream_sha256": "de99eb4536e96b1e222f76a0275d27eb24f828b8e5d2f9fefa350d9f6329d585"
+    },
+    {
+      "upstream_path": "benchmark/sat.py",
+      "local_path": "benchmark/physbrain/sat.py",
+      "upstream_sha256": "3c6edab31744ccfb7153f90937cdd961b429483d243ba61221e059049254c902"
+    },
+    {
+      "upstream_path": "benchmark/vsibench.py",
+      "local_path": "benchmark/physbrain/vsibench.py",
+      "upstream_sha256": "6a468413e48c46e4cc62bf8f262744cbf4791b669651c49a36005293459981b3"
+    },
+    {
+      "upstream_path": "benchmark/viewspatial.py",
+      "local_path": "benchmark/physbrain/viewspatial.py",
+      "upstream_sha256": "3bbe97d6ab42dbd98ca243303a7acbd9d07635da93ac7fb8178d39d10173c3c6"
+    },
+    {
+      "upstream_path": "benchmark/cosmos.py",
+      "local_path": "benchmark/physbrain/cosmos.py",
+      "upstream_sha256": "4535cad23d72e196feac0f43ebe5ee59a1c5e50af020a98f7c3a225b9db2ff26"
+    },
+    {
+      "upstream_path": "benchmark/egoplan2.py",
+      "local_path": "benchmark/physbrain/egoplan2.py",
+      "upstream_sha256": "de3a974f2bb2f1a4d6045d3f908edec1a939c98253e2e3ccbfc16aec30d2af28"
+    },
+    {
+      "upstream_path": "benchmark/erqa.py",
+      "local_path": "benchmark/physbrain/erqa.py",
+      "upstream_sha256": "d59440fdf5482413d74f10adac77aa92da8d6f91726254bb9c59ae291729a9d1"
+    },
+    {
+      "upstream_path": "benchmark/erqa_plus.py",
+      "local_path": "benchmark/physbrain/erqa_plus.py",
+      "upstream_sha256": "cec551ec62947b27c67af1f74f46530ba9fcad4a535a42966ae1ad52ceda3e78"
+    },
+    {
+      "upstream_path": "benchmark/robovqa.py",
+      "local_path": "benchmark/physbrain/robovqa.py",
+      "upstream_sha256": "3248c8fe40af97fd942e50b2faeb117f6eb5e82be828126a56243620a1c27cc1"
+    },
+    {
+      "upstream_path": "benchmark/vlabench.py",
+      "local_path": "benchmark/physbrain/vlabench.py",
+      "upstream_sha256": "54965b21f42560e9daf78720310e188ae089d10d4048bdac58d5a7f388d8a8a1"
+    },
+    {
+      "upstream_path": "benchmark/partafford.py",
+      "local_path": "benchmark/physbrain/partafford.py",
+      "upstream_sha256": "d84879e2de5f670752942321a4d0759f43cb99f8a0c49f854c5689bbcb48ebff"
+    },
+    {
+      "upstream_path": "benchmark/pio.py",
+      "local_path": "benchmark/physbrain/pio.py",
+      "upstream_sha256": "52eb45ed751fb3a7bf3d9790e3af1936824fc5ed5175dd6564d1dbbfd18b2d63"
+    },
+    {
+      "upstream_path": "benchmark/pixmo_points.py",
+      "local_path": "benchmark/physbrain/pixmo_points.py",
+      "upstream_sha256": "cca7e12fdd8e57a6c0d329009b673ebeca69d8c198c19622335d02ecc5f8870c"
+    },
+    {
+      "upstream_path": "benchmark/pointbench.py",
+      "local_path": "benchmark/physbrain/pointbench.py",
+      "upstream_sha256": "70df8b49457b443840698aa6fc8de4087f7b612fd031164102ad5a5bcd2f59d3"
+    },
+    {
+      "upstream_path": "benchmark/refspatial.py",
+      "local_path": "benchmark/physbrain/refspatial.py",
+      "upstream_sha256": "f2326576ca895ae933db998936b042ee251f9c3c542e9e97c6a0ba5bd156532a"
+    },
+    {
+      "upstream_path": "benchmark/roboafford.py",
+      "local_path": "benchmark/physbrain/roboafford.py",
+      "upstream_sha256": "c6a8b2d2717e01598f672f026b1e9d393c73747770ed232219975f18309a61de"
+    },
+    {
+      "upstream_path": "benchmark/roborefit.py",
+      "local_path": "benchmark/physbrain/roborefit.py",
+      "upstream_sha256": "f1b96950730d97a33f2cdd3484629184e4ccca5a771215c07b7912ce911faaa1"
+    },
+    {
+      "upstream_path": "benchmark/vabench_point.py",
+      "local_path": "benchmark/physbrain/vabench_point.py",
+      "upstream_sha256": "dada185d22aac316d2a78b2f9c96aeb90ef2ba5055c96bbb5cb402ebf664cf65"
+    },
+    {
+      "upstream_path": "benchmark/where2place.py",
+      "local_path": "benchmark/physbrain/where2place.py",
+      "upstream_sha256": "06aa34be7499a966ff7bab9e02aaa7abb161f610782ad020aa7a92a4c91054eb"
+    },
+    {
+      "upstream_path": "benchmark/sharerobot_bench_trajectory.py",
+      "local_path": "benchmark/physbrain/sharerobot_bench_trajectory.py",
+      "upstream_sha256": "0bf1c66356c2281ab2a820f99d1efd344d0167cae157cd6d8d6c1c0e49ab7b02"
+    },
+    {
+      "upstream_path": "benchmark/vabench_visual_trace.py",
+      "local_path": "benchmark/physbrain/vabench_visual_trace.py",
+      "upstream_sha256": "f3e38c7c6d09ea3dc303824f4223c2cdd6045d6ca3c3288598c16fffe66e9068"
+    },
+    {
+      "upstream_path": "benchmark/base.py",
+      "local_path": "benchmark/physbrain/base.py",
+      "upstream_sha256": "7e28cee41949f26bda31cbbb55f01ffdfea9c05187e039da80d75ea3a9a2017c"
+    },
+    {
+      "upstream_path": "benchmark/prompt_policy.py",
+      "local_path": "benchmark/physbrain/prompt_policy.py",
+      "upstream_sha256": "3707a46a3d367e5b0c044d474e7be3472f0a2c753790af14b9b943a0354f3a9e"
+    },
+    {
+      "upstream_path": "benchmark/__init__.py",
+      "local_path": "benchmark/physbrain/__init__.py",
+      "upstream_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "upstream_path": "core/point_utils.py",
+      "local_path": "core/physbrain/point_utils.py",
+      "upstream_sha256": "f8f8d166c90576fee58eac27e369ebeacf1b4a2d6c211a2a3a8943b0e31ee2e2"
+    },
+    {
+      "upstream_path": "core/final_point_metrics.py",
+      "local_path": "core/physbrain/final_point_metrics.py",
+      "upstream_sha256": "e84a8872b3278853cab8f7faa7207219daedeb784ea04dd22d295eb3e29be263"
+    },
+    {
+      "upstream_path": "core/framework_integration.py",
+      "local_path": "core/physbrain/framework_integration.py",
+      "upstream_sha256": "2395b19e95746c348da26e92cd66e47538b5220111098bca94b01454855d9446"
+    },
+    {
+      "upstream_path": "core/hf_data.py",
+      "local_path": "core/physbrain/hf_data.py",
+      "upstream_sha256": "6ea684b2da4aa98e73b6596be44f61361be8dae13d5234cc1ccf29de2a840a7a"
+    },
+    {
+      "upstream_path": "docs/final_point_metrics_protocol.md",
+      "local_path": "docs/final_point_metrics_protocol.md",
+      "upstream_sha256": "ea8597d4acf59d7a9c4262882d738e6af2871b94a861c996e5ee3bc000414338"
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+{
+  "source": "model/spatial_encoder_v2/inference_gt2d/vsibench_eval/acc.py",
+  "sha256": "a0c7d45fea8eecc184b55ce88de496bf8158f19e67211f623e97be92a76af66f",
+  "local_path": "benchmark/legacy/vsi_acc.py",
+  "changes": []
+}

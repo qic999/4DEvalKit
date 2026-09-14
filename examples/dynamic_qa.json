@@ -1,0 +1,28 @@
+[
+  {
+    "id": "motion_1",
+    "question": "Between 0 and 1 seconds, how far does the cube move in meters?",
+    "choices": {
+      "A": "1",
+      "B": "2",
+      "C": "3",
+      "D": "4"
+    },
+    "answer": "2",
+    "question_type": "displacement",
+    "video": "synthetic_fixture_no_video.mp4"
+  },
+  {
+    "id": "motion_2",
+    "question": "In which world direction does the cube move?",
+    "choices": {
+      "A": "+X",
+      "B": "-X",
+      "C": "+Y",
+      "D": "-Y"
+    },
+    "answer": "+X",
+    "question_type": "motion_direction",
+    "video": "synthetic_fixture_no_video.mp4"
+  }
+]
