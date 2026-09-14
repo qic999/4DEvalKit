@@ -1,0 +1,16 @@
+{
+  "model_repo": "/path/to/model/spatial_encoder_v2",
+  "data_root": "/path/to/spatialcode_data",
+  "qa_json": "/path/to/vsibench_qa.json",
+  "encoder_python": "/path/to/sam3/bin/python",
+  "eval_python": "/path/to/4DEvalKit/.venv/bin/python",
+  "llm_python": "/path/to/vllm/bin/python",
+  "llm_model": "/path/to/Qwen3.5-9B",
+  "llm_name": "qwen35_9b",
+  "llm_gpu": 7,
+  "llm_port": 23410,
+  "variants": [
+    {"name": "full", "profile": "full", "encoder": "spatial_encoder_v2", "checkpoint": "/path/to/full.pt", "gpus": [0, 1, 3]},
+    {"name": "small", "profile": "lite", "encoder": "spatial_encoder_v2_small", "checkpoint": "/path/to/small.pt", "gpus": [4, 5, 6]}
+  ]
+}
