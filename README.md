@@ -168,6 +168,23 @@ python -m scripts.summarize_results results/core_suite \
   --output results/core_scores.csv
 ```
 
+## Benchmark coverage
+
+The repository provides data and scoring adapters for 31 benchmarks. A suggested starting suite is included in [configs/core_suite.example.json](configs/core_suite.example.json).
+
+| Evaluation area | Benchmarks | Geometry inputs |
+| --- | --- | --- |
+| Static spatial perception | BLINK, CV-Bench, 3DSRBench | Object boxes, with view information where applicable |
+| Spatial and multi-view reasoning | EmbSpatial-Bench, Q-Spatial-Bench, MindCube, MMSI-Bench, ViewSpatial-Bench, VSI-Bench, SAT | Objects and camera/view relationships in a consistent coordinate frame |
+| Dynamic and temporal reasoning | STI-Bench, VLM4D, DSI-Bench | Timestamped object tracks and the corresponding camera poses |
+| Additional embodied tasks | Planning, pointing, affordance, and visual-trajectory benchmarks | Task-specific observations and output formats |
+
+Choose benchmarks and input representations according to the capabilities you want to measure. Object boxes describe position, size, and orientation; tasks involving appearance, fine-grained parts, contact, or robot state may need additional observations. Adapter availability does not imply that boxes alone contain all the information required by every question. Responses from external multimodal pipelines can be evaluated with `--predictions`.
+
+A video of a static scene can measure multi-view spatial understanding. To measure object dynamics, use time-resolved tracks instead of merging all frames into a single scene box. Keep benchmark splits, input provenance, and scoring protocols consistent across model comparisons; report dataset subsets separately from full-benchmark results.
+
+See the [benchmark matrix](docs/benchmark_matrix.md) for individual task coverage and [scoring protocols](docs/metric_protocols.md) for protocol-specific comparisons.
+
 ## Try the included examples
 
 These examples use synthetic fixtures and do not require model weights:
