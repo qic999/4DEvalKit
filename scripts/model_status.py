@@ -20,11 +20,20 @@ def main():
         final = json.loads(final_path.read_text())
         final['alive'] = process_identity(final['pid']) is not None
         worker_path = root / 'recovery/full_final39_process.json'
+        ranges_path = root / 'recovery/range_controller_process.json'
+        if ranges_path.exists() and json.loads(ranges_path.read_text())['pid'] == final.get('encoder_pid'):
+            worker_path = ranges_path
         if worker_path.is_file():
             worker = json.loads(worker_path.read_text())
             text = Path(worker['log']).read_text(errors='replace')
             worker.update(alive=process_identity(worker['pid']) is not None,
                           completed_clips=len(re.findall(r'\[write\]', text)))
+            if worker_path == ranges_path:
+                ranges_status = Path(worker['log']).parent/'status.json'
+                if ranges_status.exists():
+                    worker['ranges'] = json.loads(ranges_status.read_text())
+                    worker['completed_clips'] = sum(len(re.findall(r'\[write\]',Path(w['log']).read_text()))
+                                                    for w in worker['ranges']['workers'])
             final['encoder_worker'] = worker
         state['final_recovery'] = final
     elastic_path = root / 'elastic/status.json'

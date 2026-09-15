@@ -4,6 +4,8 @@
 
 这组实验明确使用 GT 2D proposals、GT category 和 GT camera poses；3D center / size / quaternion 来自重新运行的 encoder。Full 和 Small 使用相同场景、提示协议和 reasoning 参数。动态 benchmark 的带时间戳轨迹不能用这组静态合并框替代。
 
+其他 benchmark 的 RGB → 预测检测框 → Full/Small → reasoning 入口见 [RGB evaluation](rgb_evaluation.md)。
+
 复制 `configs/scannet_models.example.json` 为本机配置，填入 checkpoint、环境、数据和 GPU 路径。所有 GPU 必须互不重复；启动器在使用前检查显存占用。每个 encoder 的场景会按 clip 数分配到其 GPU。Qwen 在框生成之后启动，并由当前任务管理。
 
 ```bash

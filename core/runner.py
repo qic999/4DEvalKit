@@ -108,6 +108,8 @@ def run(args):
               "geometry_digest": digest(geometry.scenes) if geometry else None,
               "replay_digest": digest(replay.outputs) if replay else None,
               "python": platform.python_version()}
+    if getattr(args, 'geometry_decimals', None) is not None:
+        config['geometry_decimals'] = args.geometry_decimals
     if args.export_manifest:
         if Path(args.export_manifest).exists():
             raise FileExistsError("Manifest output exists; choose a new path")
@@ -126,7 +128,8 @@ def run(args):
                     key, scene = geometry.lookup(example["sample_id"], example["aliases"])
                     if args.require_tracks and not scene.get("tracks"):
                         raise ValueError(f"{example['sample_id']} has no tracks")
-                    messages = make_messages(example["question"], scene, args.representation, args.max_prompt_chars)
+                    messages = make_messages(example["question"], scene, args.representation, args.max_prompt_chars,
+                                             decimals=getattr(args,'geometry_decimals',None))
                     preview = preview or {"sample_id": example["sample_id"], "geometry_key": key, "messages": messages}
                     statuses["geometry_matched"] += 1
                 if replay:
@@ -170,7 +173,8 @@ def run(args):
                         key, scene = geometry.lookup(sample_id, example["aliases"])
                         if args.require_tracks and not scene.get("tracks"):
                             raise ValueError(f"{sample_id} has no tracks")
-                        messages = make_messages(example["question"], scene, args.representation, args.max_prompt_chars)
+                        messages = make_messages(example["question"], scene, args.representation, args.max_prompt_chars,
+                                                 decimals=getattr(args,'geometry_decimals',None))
                     fingerprint = digest({"messages": messages, "question": example["question"],
                                           "answer_fingerprint": example["answer_fingerprint"]})
                     context = {"sample_id": sample_id, "source_id": example["source_id"], "task": example["task"],

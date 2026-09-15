@@ -1,0 +1,32 @@
+{
+  "model_repo": "/path/to/spatial_encoder_v2",
+  "encoder_python": "/path/to/sam3/bin/python",
+  "llm_python": "/path/to/llm/bin/python",
+  "detector_model": "/path/to/grounding-dino-base/snapshot",
+  "llm_model": "/path/to/Qwen3.5-9B/snapshot",
+  "llm_name": "qwen35_9b",
+  "llm_gpu": 7,
+  "llm_port": 23411,
+  "proposal_gpu": 0,
+  "max_objects": 40,
+  "variants": [
+    {"name": "full", "profile": "full", "checkpoint": "/path/to/full.pt", "gpus": [1, 2, 3]},
+    {"name": "small", "profile": "lite", "checkpoint": "/path/to/small.pt", "gpus": [4, 5, 6]}
+  ],
+  "jobs": [
+    {
+      "name": "qspatial_plus",
+      "benchmark": "Q-Spatial-Bench",
+      "split": "QSpatial_plus",
+      "data": "/path/to/QSpatial_plus.parquet",
+      "manifest": "data/prepared/qspatial/QSpatial_plus/manifest.json"
+    },
+    {
+      "name": "sti_bench",
+      "benchmark": "STI-Bench",
+      "split": "train",
+      "data": "/path/to/STI-Bench/qa.parquet",
+      "manifest": "data/prepared/sti_bench/train/manifest.json"
+    }
+  ]
+}

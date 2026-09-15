@@ -54,6 +54,10 @@ validation decodes the first frame; it does not certify every frame. The
 `encoder_inputs_ready` state means media are ready for geometry generation;
 encoder inference and LLM evaluation are separate steps.
 
+To generate predicted boxes and tracks directly from these media with Full/Small,
+see [RGB evaluation](docs/rgb_evaluation.md). The background launcher runs shared
+2D proposals, sharded encoder inference, and text reasoning from one config.
+
 Convert existing scene boxes when needed:
 
 ```bash

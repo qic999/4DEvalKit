@@ -146,7 +146,13 @@ def prepare_job(job, output_root):
                             row = media_manifest(example, dest / 'media' / uuid.uuid4().hex)
                         if not row['media']:
                             raise ValueError(f"No encoder media: {row['sample_id']}")
-                        row['media'] = {k: validate_media(v, roots, job.get('repo_id'), cache)
+                        sample_roots = roots
+                        if spec.name == 'DSI-Bench':
+                            aug = row['input_metadata']['augmentation']
+                            if aug not in {'std', 'reverse', 'hflip', 'reverse_hflip'}:
+                                raise ValueError(f'Unknown DSI augmentation: {aug}')
+                            sample_roots = [str(Path(source) / 'videos' / aug)]
+                        row['media'] = {k: validate_media(v, sample_roots, job.get('repo_id'), cache)
                                         for k,v in row['media'].items()}
                         write_json(saved, {'fingerprint': fingerprint, 'input': row})
                         records.append(row)

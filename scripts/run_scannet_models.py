@@ -46,6 +46,7 @@ def main():
                    help='Require all scene done flags; merge/score without launching encoders')
     p.add_argument('--plan', action='store_true')
     p.add_argument('--variant', action='append', help='Postprocess only these variant names')
+    p.add_argument('--merge-workers', type=int, default=8, help='Concurrent native scene merges during postprocessing')
     args = p.parse_args()
     if args.postprocess_only and not args.resume:
         p.error('--postprocess-only requires --resume')
@@ -196,7 +197,8 @@ def main():
             if args.postprocess_only and existing.is_file():
                 result = json.loads(existing.read_text())
                 if (result.get('num_samples') == len(selected)
-                    and result.get('status_counts') == {'ok': len(selected)}
+                    and set(result.get('status_counts', {})) <= {'ok', 'invalid_completion'}
+                    and sum(result.get('status_counts', {}).values()) == len(selected)
                     and len(result['results']) == len(selected)
                     and {str(x['source_id']) for x in result['results']}
                         == {str(x['id']) for x in selected}):
@@ -225,10 +227,12 @@ def main():
                 if native_done:
                     print(f'{name}: reusing verified completed native merge and 3D metrics', flush=True)
                 else:
-                    for scene in scenes:
+                    def merge_scene(scene):
                         run([config['encoder_python'], repo / 'inference_gt2d/merge_json.py',
                              '--scene_id', scene, '--pred_dir', save_name, '--exp_name', exp_name],
-                            logs / (name + '_merge_recovery.log'), env, repo)
+                            logs / (name + '_merge_' + scene + '.log'), env, repo)
+                    with ThreadPoolExecutor(max_workers=args.merge_workers) as mergers:
+                        list(mergers.map(merge_scene, scenes))
                     run([config['encoder_python'], repo / 'inference_gt2d/compute_metrics_3d.py',
                          'scannet', '--pred-dir', save_name, '--exp-name', exp_name],
                         out / 'runs' / save_name / 'metrics.log', env, repo)

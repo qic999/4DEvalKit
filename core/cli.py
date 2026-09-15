@@ -37,6 +37,8 @@ def main(default_benchmark=None):
     parser.add_argument("--retries", type=int, default=2)
     parser.add_argument("--max-tokens", type=int, default=512)
     parser.add_argument("--max-prompt-chars", type=int, default=150000)
+    parser.add_argument('--geometry-decimals', type=int, choices=range(9), default=None,
+                        help='Explicit decimal precision for geometry text; saved geometry stays unchanged')
     parser.add_argument("--temperature", type=float, default=0.0)
     parser.add_argument("--seed", type=int, default=0)
     parser.add_argument("--extra-body", type=json.loads, default={}, help='Server-specific JSON, e.g. {"chat_template_kwargs":{"enable_thinking":false}}')

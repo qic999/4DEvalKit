@@ -10,6 +10,20 @@ from core.media import export_media
 from scripts.prepare_benchmarks import extract_archive, prepare_job, resolve_media_path
 
 
+def test_local_blink_snapshot_only_needs_selected_splits(tmp_path):
+    import pyarrow as pa
+    import pyarrow.parquet as pq
+    from benchmark.loader import BenchmarkSession
+    from scripts.benchmark_registry import get_spec
+    for subset in ['Counting','Relative_Depth','Spatial_Relation']:
+        path = tmp_path/subset/'val-00000-of-00001.parquet'
+        path.parent.mkdir()
+        pq.write_table(pa.Table.from_pylist([{'idx':subset,'sub_task':subset}]),path)
+    session = BenchmarkSession(get_spec('BLINK'),data=str(tmp_path))
+    assert session.selected_count == 3
+    assert [r['idx'] for r in session.raw] == ['Counting','Relative_Depth','Spatial_Relation']
+
+
 def test_media_resolution_is_exact_and_rejects_ambiguity(tmp_path):
     a, b = tmp_path / 'a', tmp_path / 'b'
     for root in (a, b):

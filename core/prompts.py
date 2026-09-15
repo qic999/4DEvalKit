@@ -15,7 +15,7 @@ For quantitative VSI-Bench questions return a number in the question's units; fo
 """
 
 
-def make_messages(question, scene, representation="3d", max_chars=150000):
+def make_messages(question, scene, representation="3d", max_chars=150000, decimals=None):
     scene = deepcopy(scene)
     # Provenance is logged by the runner, but is not needed by the reasoner.
     scene.pop("provenance", None)
@@ -39,6 +39,18 @@ def make_messages(question, scene, representation="3d", max_chars=150000):
         for key in ["cameras", "layout", "room_layout", "initial_heading", "units"]:
             scene.pop(key, None)
         scene["coordinate_frame"] = "image_pixels_xyxy"
+    if decimals is not None:
+        if not isinstance(decimals, int) or not 0 <= decimals <= 8:
+            raise ValueError('Geometry decimals must be an integer from 0 through 8')
+        def rounded(value):
+            if isinstance(value, float):
+                return round(value, decimals)
+            if isinstance(value, list):
+                return [rounded(x) for x in value]
+            if isinstance(value, dict):
+                return {k: rounded(v) for k,v in value.items()}
+            return value
+        scene = rounded(scene)
     content = "Scene observations:\n" + dumps(scene) + "\n\nQuestion:\n" + question
     if len(content) > max_chars:
         raise ValueError(f"Prompt has {len(content)} characters, above limit {max_chars}; explicitly reduce observations instead of silently truncating tracks")

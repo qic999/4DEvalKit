@@ -108,6 +108,14 @@ class BenchmarkSession:
                 raise ValueError("legacy-vsi input is only supported for VSI-Bench")
             self.raw = read_json(p)
             self.adapter = LegacyVSI(self.adapter)
+        elif spec.name == 'BLINK' and p.is_dir():
+            from datasets import load_dataset
+            self.raw = []
+            for subset in self.adapter.SUBSETS:
+                files = sorted((p / subset).glob(f'{self.split}-*.parquet'))
+                if not files:
+                    raise FileNotFoundError(f'No {subset}/{self.split} parquet shards under {p}')
+                self.raw.extend(load_dataset('parquet', data_files=[str(f) for f in files], split='train'))
         elif spec.module == "dynamic" or spec.module in {"threedsrbench", "mindcube", "viewspatial", "mmsi_bench", "erqa_plus", "roborefit", "robovqa", "vlabench"}:
             self.raw = self.adapter.load_dataset()
         elif p.exists() and spec.module not in {"blink", "robospatial", "refspatial"}:

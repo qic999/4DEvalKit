@@ -62,4 +62,24 @@
 
 验证环境：Python 3.13.9；NumPy 2.3.5；SciPy 1.16.3；datasets 4.8.5；PyArrow 21.0.0；Pillow 12.0.0；SacreBLEU 2.6.0；pytest 8.4.2；opencv-python-headless 4.14.0.94。模型服务不依赖这套环境加载 PyTorch。
 
-全量新实验还需要：两个 encoder 在选定 benchmark 上的预测几何、动态时间/ID/全局位姿，以及选定的 reasoning LLM 服务。代码入口和转换/运行配置已提供；本轮没有启动新的 encoder GPU 推理或提交论文分数。
+以上记录对应最初的数据/评分适配验证阶段。当时尚未运行新的 encoder 推理。
+
+## RGB pipeline validation
+
+The RGB entry point is documented in [RGB evaluation](rgb_evaluation.md).
+Native Full and Small inference has been exercised on single-image Q-Spatial
+samples and timestamped STI samples. Validation checks frame-stage coverage,
+native checkpoint compatibility, metric scale, camera motion transforms and
+question-to-geometry mapping. The complete 101-question QSpatial_plus geometry
+export has passed coverage checks for both variants.
+
+The dense-scene RoPE memory change was checked on a native 493-observation clip
+with exactly matching outputs. The depth-scaling initialization fix preserves
+the existing large-foreground branch exactly and exercises the previously
+failing small-foreground branch. Automated tests cover absolute video times,
+multiview order, camera-motion compensation and explicit text precision.
+
+Dataset preparation, geometry generation and completed QA are separate states.
+Use each run's `status.json` and per-variant QA results to establish which full
+splits actually finished; adapter availability and smoke tests do not establish
+completed benchmark scores.

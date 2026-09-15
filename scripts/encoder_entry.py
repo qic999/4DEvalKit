@@ -13,7 +13,31 @@ import sys
 from types import MethodType
 
 
-def install_chunked_rope(chunk_size=4):
+def install_depth_scale_sampling_fix():
+    """Initialize the native depth sample when foreground has <=100k pixels.
+
+    The existing branch initializes only confidence, then later reads an
+    unbound sampled_depth. Other branches and their random sampling stay native.
+    This local inference hook leaves the model repository on disk unchanged.
+    """
+    import inspect
+    import textwrap
+    from sam3.modeling.backbones.spatial.depthanythingv3.model import DepthAnything3
+    original = DepthAnything3.get_scale
+    source = textwrap.dedent(inspect.getsource(original))
+    needle = '        depth_conf_sampled = depth_conf_ns\n'
+    if 'sampled_depth = non_sky_depth\n' in source:
+        return
+    if source.count(needle) != 1:
+        raise RuntimeError('Unsupported native depth scaling implementation')
+    source = source.replace(needle, needle+'        sampled_depth = non_sky_depth\n')
+    namespace = {}
+    exec(compile(source, '<4deval-depth-scale-sampling-fix>', 'exec'), original.__globals__, namespace)
+    DepthAnything3.get_scale = namespace['get_scale']
+    print('[4deval] initialized depth samples for native <=100k foreground branch', flush=True)
+
+
+def install_chunked_rope(chunk_size=4, inplace_k=False):
     """Bound RoPE's float32/complex temporaries without changing attention."""
     import torch
     from sam3.model import decoder
@@ -30,14 +54,17 @@ def install_chunked_rope(chunk_size=4):
             if qout is None:
                 # Native per-item strides are independent of batch size.
                 qout = torch.empty_strided(xq.shape, qr.stride(), dtype=qr.dtype, device=qr.device)
-                kout = torch.empty_strided(xk.shape, kr.stride(), dtype=kr.dtype, device=kr.device)
+                # functional_attention immediately writes rotated keys into
+                # this same projected-key slice. Reuse it in inference to
+                # avoid retaining a second full temporal-key tensor.
+                kout = xk if inplace_k else torch.empty_strided(xk.shape, kr.stride(), dtype=kr.dtype, device=kr.device)
             qout[start:stop].copy_(qr)
             kout[start:stop].copy_(kr)
             del qr, kr
         return qout, kout
 
     decoder.apply_rotary_enc = rotate
-    print(f'[4deval] RoPE temporaries use object batches of {chunk_size}; all temporal keys and attention operations preserved', flush=True)
+    print(f'[4deval] RoPE object batch={chunk_size}, inplace_k={inplace_k}; all temporal keys and attention operations preserved', flush=True)
 
 
 def install_large_interpolation():
@@ -173,7 +200,7 @@ def main():
     if large_interpolation:
         install_large_interpolation()
     if chunked_rope:
-        install_chunked_rope()
+        install_chunked_rope(inplace_k=os.environ.get('FOURDEVAL_INPLACE_ROPE') == '1')
     original_make_model = module.make_model
 
     def make_model(args):
