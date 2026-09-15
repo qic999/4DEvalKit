@@ -128,3 +128,60 @@ without coordinating their lifetimes.
 For individual stages, run `python -m scripts.generate_media_proposals --help`
 and `python -m scripts.encode_media_geometry --help` in the corresponding
 environments, then pass the resulting geometry to the normal `eval.py` CLI.
+
+## Native answer formats and matched observation ablations
+
+Increasing the output budget alone may still produce truncated explanations.
+Use `--answer-format native` with a vLLM server supporting
+[structured outputs](https://docs.vllm.ai/en/latest/features/structured_outputs/).
+The media controller exposes this as `"qa_answer_format": "native"` in its
+configuration. It constrains choice tasks to their public option letters, SAT
+to the displayed answer texts, and Q-Spatial to its scalar-and-unit format.
+VSI numeric responses use decimal syntax. Numeric fields allow at most 12 integer
+digits and eight fractional digits; Q-Spatial accepts m, cm, mm, ft or in.
+These constraints use no answer labels. Results record `native_answer_v1` and
+the per-question constraint. Keep these scores separate from free-form runs.
+
+Matched ablations use a common system prompt and the following observation modes:
+
+| CLI mode | Input |
+|---|---|
+| `--observation-mode rgb` | RGB only; omit `--geometry` |
+| `--observation-mode boxes` | Geometry only |
+| `--observation-mode rgb_boxes` | The same RGB inputs plus geometry |
+
+All modes require `--media-manifest`. Visual arms keep image ordering and use the
+same 16-frame video sampling as the encoder bridge, with real timestamps. Images
+are resized to at most 262,144 pixels before JPEG encoding at quality 95. The
+multimodal server uses matching pixel limits and supports up to 32 images.
+Answers use the same model, prompt, sampling settings and native constraints in
+every arm. RGB-only is shared between Full and Small; the other modes run once
+for each encoder. Complete datasets are scored, including empty detections.
+
+For an unattended sequence, configure
+[`observation_ablations.example.json`](../configs/observation_ablations.example.json):
+
+```bash
+nohup python -u -m scripts.run_observation_ablations \
+  --config configs/my_observation_ablations.json \
+  --output-root results/observation_ablations \
+  > logs/observation_ablations.log 2>&1 < /dev/null &
+```
+
+The sequence waits for the recorded native-answer run, checks complete sample
+coverage and verifies every response ended normally and matches its declared
+format. Any truncation or missing answer prevents comparisons from starting.
+It then waits for the source evaluation controller to finish, loads one
+multimodal reasoner per available configured GPU, and runs the comparisons.
+Controllers record process start times to distinguish restarted or reused PIDs.
+Reasoning servers coordinate through GPU leases and check current GPU occupancy.
+Per-task progress and scores are saved in `status.json`; each task has its own
+`qa.json`, journal and log. Interrupted tasks can resume with the same config.
+
+For a ScanNet oracle, `scripts.prepare_scannet_oracle` exports GT object boxes
+into the native encoder's world frame, using the dataset's translations and
+checking against camera-frame annotations. It excludes aggregate room size,
+object counts and question answers. Use the exported manifest and geometry in
+a separate `boxes`-only job, together with Full and Small geometry. This oracle
+has all annotated objects and GT categories, so it measures a broader upper
+reference than replacing only predicted box coordinates.

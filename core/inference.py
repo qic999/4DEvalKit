@@ -26,8 +26,12 @@ class APIInferenceEngine:
         if {"model", "messages", "stream"} & self.extra_body.keys():
             raise ValueError("extra_body cannot replace model/messages/stream")
 
-    def infer(self, messages):
+    def infer(self, messages, *, structured_outputs=None):
         payload = {"model": self.model, "messages": messages, **self.generation, **self.extra_body}
+        if structured_outputs is not None:
+            if 'structured_outputs' in self.extra_body or 'response_format' in self.extra_body:
+                raise ValueError('Per-question answer constraints conflict with extra_body')
+            payload['structured_outputs'] = structured_outputs
         headers = {"Content-Type": "application/json"}
         if self.api_key:
             headers["Authorization"] = "Bearer " + self.api_key
@@ -43,6 +47,10 @@ class APIInferenceEngine:
                     raise ValueError("Completion has no final text content")
                 finish = choice.get("finish_reason")
                 status = "ok" if finish in {None, "stop", "eos_token"} and text.strip() else "invalid_completion"
+                if structured_outputs is not None and status == 'ok':
+                    from .response_constraints import matches_constraint
+                    if not matches_constraint(text, structured_outputs):
+                        status = 'invalid_completion'
                 return {"raw_output": text, "status": status, "finish_reason": finish,
                         "usage": data.get("usage", {}), "latency_seconds": time.monotonic() - start}
             except (OSError, http.client.HTTPException, ValueError, KeyError, IndexError, TypeError) as exc:

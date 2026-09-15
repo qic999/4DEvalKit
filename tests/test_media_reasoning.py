@@ -34,13 +34,14 @@ def test_qa_only_uses_all_cached_geometry_and_explicit_budget(tmp_path, monkeypa
                                     'primary_metric':{'score_100':50}})
         def poll(self):
             return None if self.server else 0
-        def wait(self):
+        def wait(self, timeout=None):
             return 0
     monkeypatch.setattr(pipeline.subprocess, 'Popen', FakeProcess)
     monkeypatch.setattr(pipeline.subprocess, 'check_output', lambda *a,**kw:'7, 0\n')
     monkeypatch.setattr(pipeline.urllib.request, 'urlopen',
                         lambda *a,**kw:io.StringIO(json.dumps({'data':[{'id':'llm'}]})))
     monkeypatch.setattr(pipeline.os, 'killpg', lambda *a:None)
+    monkeypatch.setattr(pipeline, 'acquire_gpu', lambda *a:io.StringIO())
     monkeypatch.setattr(pipeline.signal, 'signal', lambda *a:None)
     monkeypatch.setattr(sys, 'argv', ['run_media_models', '--config',str(config_path),
                                     '--geometry-root',str(source), '--output-root',str(output)])

@@ -36,6 +36,13 @@ def main(default_benchmark=None):
     parser.add_argument("--timeout", type=float, default=120)
     parser.add_argument("--retries", type=int, default=2)
     parser.add_argument("--max-tokens", type=int, default=512)
+    parser.add_argument('--answer-format', choices=['free', 'native'], default='free',
+                        help='native constrains final answers to public option letters or numeric formats')
+    parser.add_argument('--observation-mode', choices=['legacy','boxes','rgb','rgb_boxes'], default='legacy',
+                        help='Nonlegacy modes use a common prompt for RGB/box ablations')
+    parser.add_argument('--media-manifest', help='Prepared public media manifest for matched ablations')
+    parser.add_argument('--max-image-pixels', type=int, default=262144)
+    parser.add_argument('--video-frames', type=int, default=16)
     parser.add_argument("--max-prompt-chars", type=int, default=150000)
     parser.add_argument('--geometry-decimals', type=int, choices=range(9), default=None,
                         help='Explicit decimal precision for geometry text; saved geometry stays unchanged')
@@ -53,6 +60,10 @@ def main(default_benchmark=None):
         parser.error("--benchmark is required")
     if args.export_media_dir and not args.export_manifest:
         parser.error("--export-media-dir requires --export-manifest")
+    if args.observation_mode != 'legacy' and not args.media_manifest:
+        parser.error('Matched observation ablations require --media-manifest')
+    if args.max_image_pixels < 1 or args.video_frames < 1:
+        parser.error('Image pixel and video frame limits must be positive')
     if min(args.batch_size, args.concurrency, args.max_tokens, args.max_prompt_chars) <= 0 or args.timeout <= 0 or args.retries < 0:
         parser.error("Batch/concurrency/token/time limits must be positive; retries must be nonnegative")
     if not isinstance(args.extra_body, dict):

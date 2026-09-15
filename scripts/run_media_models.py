@@ -19,6 +19,7 @@ from core.geometry import GeometryStore
 from core.io import digest, read_json, write_json
 from core.runner import output_lock
 from scripts.finish_scannet_recovery import process_identity
+from scripts.gpu_lease import acquire_gpu
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -178,6 +179,7 @@ def main():
 
     def reason():
         server = None
+        lease = None
         try:
             for job in jobs:
                 name = job['name']
@@ -194,13 +196,15 @@ def main():
                         previous = read_json(prior)
                         if previous['phase'] in {'complete','failed'} or process_identity(previous['pid']) is None: break
                         time.sleep(10)
+                    lease = acquire_gpu(config['llm_gpu'],
+                        lambda: status(name, phase='waiting_for_gpu'))
                     release_deadline = time.monotonic() + 300
                     while True:
                         used = subprocess.check_output(['nvidia-smi','--query-gpu=index,memory.used','--format=csv,noheader,nounits'],text=True)
                         busy = any(int(m)>1024 for i,m in (line.split(',') for line in used.splitlines()) if int(i)==config['llm_gpu'])
                         if not busy:
                             break
-                        if not prerequisite or time.monotonic() > release_deadline:
+                        if time.monotonic() > release_deadline:
                             raise RuntimeError('Reasoning GPU is still occupied')
                         time.sleep(5)
                     server = spawn([config['llm_python'],'-m','vllm.entrypoints.openai.api_server',
@@ -228,6 +232,7 @@ def main():
                             '--temperature','0','--seed','0',
                             '--max-tokens',config.get('qa_max_tokens',512),
                             '--timeout',config.get('qa_timeout',120),
+                            '--answer-format',config.get('qa_answer_format','free'),
                             '--concurrency','8','--batch-size','16',
                             '--geometry-decimals','4','--max-prompt-chars','600000',
                             '--extra-body','{"chat_template_kwargs":{"enable_thinking":false}}',
@@ -247,7 +252,15 @@ def main():
             status(name, phase='failed', error=str(exc))
             raise
         finally:
-            if server and server.poll() is None: os.killpg(server.pid,signal.SIGTERM)
+            if server and server.poll() is None:
+                os.killpg(server.pid,signal.SIGTERM)
+                try:
+                    server.wait(timeout=60)
+                except subprocess.TimeoutExpired:
+                    os.killpg(server.pid,signal.SIGKILL)
+                    server.wait()
+            if lease:
+                lease.close()
 
     with output_lock(out/'status.json'):
         if (out/'config.json').exists() and read_json(out/'config.json') != config:

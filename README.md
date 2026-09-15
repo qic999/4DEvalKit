@@ -1,6 +1,6 @@
 # 4DEvalKit
 
-Run benchmark evaluation with scene geometry and a text LLM, or score saved predictions offline.
+Evaluate image, video, and geometry inputs with a language model, or score saved predictions offline.
 
 ## Install
 
@@ -21,7 +21,7 @@ For live inference, provide an OpenAI-compatible `/v1/chat/completions` endpoint
 
 ## Prepare evaluation inputs
 
-Each evaluation needs benchmark questions and either a geometry file or saved model responses.
+Each evaluation needs benchmark questions and geometry, visual observations, or saved model responses.
 
 - `--data`: a local dataset path or Hugging Face dataset ID. Omit it to use the benchmark's configured source.
 - `--geometry`: scene objects or timestamped object tracks, keyed by sample ID or a supported source ID. VSI-Bench also accepts scene names.
@@ -112,6 +112,12 @@ Use `--save-prompts` to retain prompts and `--limit 10` for a small trial. Pass 
 ```bash
 --extra-body '{"chat_template_kwargs":{"enable_thinking":false}}'
 ```
+
+On a vLLM server, use `--answer-format native` to constrain supported tasks to
+their required final-answer formats. Use `--observation-mode rgb`, `boxes`, or
+`rgb_boxes` with `--media-manifest` for matched input comparisons. See
+[native answer formats and matched ablations](docs/rgb_evaluation.md#native-answer-formats-and-matched-observation-ablations)
+for setup, output-budget settings, and background execution.
 
 ## Evaluate dynamic scenes
 

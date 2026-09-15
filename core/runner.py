@@ -85,7 +85,17 @@ def run(args):
         raise ValueError("--output must end in .json; a sibling .jsonl journal is written during inference")
     geometry = GeometryStore(args.geometry, units=args.units, coordinate_frame=args.coordinate_frame) if args.geometry else None
     replay = ReplayEngine(args.predictions) if args.predictions else None
-    if not geometry and not replay and not args.export_manifest:
+    observation_mode = getattr(args, 'observation_mode', 'legacy')
+    observations = None
+    if observation_mode != 'legacy':
+        from .observations import ObservationManifest
+        observations = ObservationManifest(args.media_manifest, mode=observation_mode,
+            max_pixels=args.max_image_pixels, video_frames=args.video_frames)
+        if observation_mode in {'boxes','rgb_boxes'} and not geometry:
+            raise ValueError('Box observation modes require --geometry')
+        if observation_mode == 'rgb' and geometry:
+            raise ValueError('RGB-only ablation must not receive a geometry file')
+    if not geometry and not replay and not args.export_manifest and observation_mode != 'rgb':
         raise ValueError("Provide --geometry (model predictions) or --predictions (offline scoring)")
     if args.require_tracks and geometry is None:
         raise ValueError("--require-tracks needs --geometry")
@@ -110,6 +120,13 @@ def run(args):
               "python": platform.python_version()}
     if getattr(args, 'geometry_decimals', None) is not None:
         config['geometry_decimals'] = args.geometry_decimals
+    constrained = getattr(args, 'answer_format', 'free') == 'native'
+    if constrained:
+        from .response_constraints import VERSION, response_constraint
+        config['answer_format'] = VERSION
+    if observations:
+        config['observations'] = observations.identity
+        config['prompt_version'] = observations.identity['protocol']
     if args.export_manifest:
         if Path(args.export_manifest).exists():
             raise FileExistsError("Manifest output exists; choose a new path")
@@ -130,8 +147,15 @@ def run(args):
                         raise ValueError(f"{example['sample_id']} has no tracks")
                     messages = make_messages(example["question"], scene, args.representation, args.max_prompt_chars,
                                              decimals=getattr(args,'geometry_decimals',None))
-                    preview = preview or {"sample_id": example["sample_id"], "geometry_key": key, "messages": messages}
+                    if not observations:
+                        preview = preview or {"sample_id": example["sample_id"], "geometry_key": key, "messages": messages}
                     statuses["geometry_matched"] += 1
+                if observations:
+                    messages = observations.messages(example['sample_id'],example['question'],
+                        scene if geometry else {}, max_chars=args.max_prompt_chars,
+                        decimals=getattr(args,'geometry_decimals',None))
+                    preview = {'sample_id':example['sample_id'], 'messages':messages} if preview is None else preview
+                    statuses['observations_matched'] += 1
                 if replay:
                     statuses[replay.infer(example["sample_id"], example["source_id"],
                         question=example["question"], metadata=example["sample"]["metadata"])["status"]] += 1
@@ -175,11 +199,18 @@ def run(args):
                             raise ValueError(f"{sample_id} has no tracks")
                         messages = make_messages(example["question"], scene, args.representation, args.max_prompt_chars,
                                                  decimals=getattr(args,'geometry_decimals',None))
+                    if observations:
+                        messages = observations.messages(example['sample_id'],example['question'],scene or {},
+                            max_chars=args.max_prompt_chars, decimals=getattr(args,'geometry_decimals',None))
                     fingerprint = digest({"messages": messages, "question": example["question"],
                                           "answer_fingerprint": example["answer_fingerprint"]})
                     context = {"sample_id": sample_id, "source_id": example["source_id"], "task": example["task"],
                                "sample_fingerprint": fingerprint, "geometry_key": key,
                                "provenance": scene.get("provenance", {}) if scene else {}}
+                    constraint = response_constraint(spec.name, example['question'],
+                        example['sample']['metadata'].get('choices') if spec.name == 'SAT' else None) if constrained else None
+                    if constraint:
+                        context['response_constraint'] = constraint
                     if args.save_prompts:
                         context["messages"] = messages
                     previous = saved.get(sample_id)
@@ -193,7 +224,8 @@ def run(args):
                             question=example["question"], metadata=example["sample"]["metadata"])}
                         journal.write(dumps(ready[sample_id]) + "\n"); journal.flush()
                     else:
-                        futures[pool.submit(engine.infer, messages)] = context
+                        futures[pool.submit(engine.infer, messages,
+                            **({'structured_outputs':constraint} if constraint else {}))] = context
                 for future in as_completed(futures):
                     context = futures[future]
                     record = {**context, **future.result()}
