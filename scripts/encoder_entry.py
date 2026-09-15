@@ -13,6 +13,33 @@ import sys
 from types import MethodType
 
 
+def install_chunked_rope(chunk_size=4):
+    """Bound RoPE's float32/complex temporaries without changing attention."""
+    import torch
+    from sam3.model import decoder
+    original = decoder.apply_rotary_enc
+
+    def rotate(xq, xk, freqs_cis, repeat_freqs_k=False):
+        if (xq.ndim != 4 or xq.shape[0] <= chunk_size or xk.shape[0] != xq.shape[0]
+                or torch.is_grad_enabled() and (xq.requires_grad or xk.requires_grad)):
+            return original(xq, xk, freqs_cis, repeat_freqs_k)
+        qout = kout = None
+        for start in range(0, xq.shape[0], chunk_size):
+            stop = start + chunk_size
+            qr, kr = original(xq[start:stop], xk[start:stop], freqs_cis, repeat_freqs_k)
+            if qout is None:
+                # Native per-item strides are independent of batch size.
+                qout = torch.empty_strided(xq.shape, qr.stride(), dtype=qr.dtype, device=qr.device)
+                kout = torch.empty_strided(xk.shape, kr.stride(), dtype=kr.dtype, device=kr.device)
+            qout[start:stop].copy_(qr)
+            kout[start:stop].copy_(kr)
+            del qr, kr
+        return qout, kout
+
+    decoder.apply_rotary_enc = rotate
+    print(f'[4deval] RoPE temporaries use object batches of {chunk_size}; all temporal keys and attention operations preserved', flush=True)
+
+
 def install_large_interpolation():
     """Split independent batch items past the CUDA bilinear INT_MAX limit."""
     import torch
@@ -136,7 +163,8 @@ def main():
     box_only = os.environ.get('FOURDEVAL_BOX_ONLY_FUSION') == '1'
     mask_offload = os.environ.get('FOURDEVAL_TRACKER_MASK_OFFLOAD') == '1'
     large_interpolation = os.environ.get('FOURDEVAL_LARGE_INTERPOLATION') == '1'
-    if script.name != 'scene_inference.py' or not (box_only or mask_offload or large_interpolation):
+    chunked_rope = os.environ.get('FOURDEVAL_CHUNKED_ROPE') == '1'
+    if script.name != 'scene_inference.py' or not (box_only or mask_offload or large_interpolation or chunked_rope):
         runpy.run_path(str(script), run_name='__main__')
         return
     spec = importlib.util.spec_from_file_location('fourdeval_native_scene', script)
@@ -144,6 +172,8 @@ def main():
     spec.loader.exec_module(module)
     if large_interpolation:
         install_large_interpolation()
+    if chunked_rope:
+        install_chunked_rope()
     original_make_model = module.make_model
 
     def make_model(args):

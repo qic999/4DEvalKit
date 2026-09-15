@@ -1,0 +1,17 @@
+{
+  "jobs": [
+    {
+      "name": "sti_bench",
+      "benchmark": "STI-Bench",
+      "data": "/path/to/STI-Bench/qa.parquet",
+      "archives": ["/path/to/STI-Bench/video.zip"]
+    },
+    {
+      "name": "vlm4d",
+      "benchmark": "VLM4D",
+      "repo_id": "shijiezhou/VLM4D",
+      "revision": "9562dc8608cf9715f979ed0c6a5409a11b3978ca",
+      "splits": ["real_mc", "synthetic_mc"]
+    }
+  ]
+}

@@ -20,6 +20,8 @@ ROOT = Path(__file__).resolve().parents[1]
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--run-dir', required=True)
+    parser.add_argument('--allow-invalid-completions', action='store_true',
+                        help='Keep truncated/empty model responses as failures; never accept missing/API errors')
     args = parser.parse_args()
     run = Path(args.run_dir).resolve()
     manifest = json.loads((run / 'manifest.json').read_text())
@@ -42,7 +44,8 @@ def main():
             if result['num_samples'] != expected or len({x['sample_id'] for x in result['results']}) != expected:
                 raise RuntimeError(f'{name}: incomplete or duplicate QA coverage')
             counts = result['status_counts']
-            if counts != {'ok': expected}:
+            allowed = {'ok', 'invalid_completion'} if args.allow_invalid_completions else {'ok'}
+            if sum(counts.values()) != expected or set(counts) - allowed:
                 raise RuntimeError(f'{name}: invalid/request failure counts {counts}; resume needed')
             target = run / 'qa_project' / (name + '.json')
             log = run / 'logs' / (name + '_project_replay.log')
@@ -58,7 +61,7 @@ def main():
             subprocess.run([config['eval_python'], '-m', 'scripts.summarize_results',
                             *map(str, paths), '--output', str(run / 'summary.csv')], cwd=ROOT, check=True)
             done.add(name)
-            print(f'Audited {name}: {expected} valid new completions; both metric protocols saved', flush=True)
+            print(f'Audited {name}: {expected} covered questions; status counts {counts}; both metric protocols saved', flush=True)
         if len(done) != len(names):
             try:
                 os.kill(int(state['pid']), 0)

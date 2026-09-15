@@ -45,9 +45,12 @@ def main():
     p.add_argument('--postprocess-only', action='store_true',
                    help='Require all scene done flags; merge/score without launching encoders')
     p.add_argument('--plan', action='store_true')
+    p.add_argument('--variant', action='append', help='Postprocess only these variant names')
     args = p.parse_args()
     if args.postprocess_only and not args.resume:
         p.error('--postprocess-only requires --resume')
+    if args.variant and not args.postprocess_only:
+        p.error('--variant requires --postprocess-only')
     config = json.loads(Path(args.config).read_text())
     out = Path(args.output_root).resolve()
     repo = Path(config['model_repo']).resolve(strict=True)
@@ -99,6 +102,10 @@ def main():
         out.mkdir(parents=True)
         manifest['started_utc'] = time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime())
         write_json(out / 'manifest.json', manifest)
+    if args.variant:
+        if not set(args.variant) <= {v['name'] for v in variants}:
+            raise ValueError('Unknown variant selection')
+        variants = [v for v in variants if v['name'] in args.variant]
     if args.postprocess_only:
         for v in variants:
             pred = out / 'BoxDet/pred' / (v['name'] + '_scannet_val88_gt2d_all')
@@ -119,6 +126,9 @@ def main():
     lock = threading.Lock()
     server_lock = threading.Lock()
     state = {v['name']: {'phase': 'queued'} for v in variants}
+    if args.variant:
+        previous_state = json.loads((out / 'status.json').read_text())
+        state = {**previous_state['variants'], **state}
     children = []
     server = None
 
@@ -206,13 +216,22 @@ def main():
                    log=str(logs / (name + '_encoder.log')), checkpoint=v['checkpoint'])
             if args.postprocess_only:
                 exp_name = 'merged_bbox_3dconf_top5meanwhl1r_timestamp'
-                for scene in scenes:
-                    run([config['encoder_python'], repo / 'inference_gt2d/merge_json.py',
-                         '--scene_id', scene, '--pred_dir', save_name, '--exp_name', exp_name],
-                        logs / (name + '_merge_recovery.log'), env, repo)
-                run([config['encoder_python'], repo / 'inference_gt2d/compute_metrics_3d.py',
-                     'scannet', '--pred-dir', save_name, '--exp-name', exp_name],
-                    out / 'runs' / save_name / 'metrics.log', env, repo)
+                native_log = logs / (name + '_encoder.log')
+                metrics_log = out / 'runs' / save_name / 'metrics.log'
+                native_done = (native_log.exists() and '[done] predictions=' in native_log.read_text()
+                               and metrics_log.exists() and metrics_log.stat().st_size > 0
+                               and all((out / 'BoxDet/pred' / save_name / scene /
+                                        (exp_name + '.json')).is_file() for scene in scenes))
+                if native_done:
+                    print(f'{name}: reusing verified completed native merge and 3D metrics', flush=True)
+                else:
+                    for scene in scenes:
+                        run([config['encoder_python'], repo / 'inference_gt2d/merge_json.py',
+                             '--scene_id', scene, '--pred_dir', save_name, '--exp_name', exp_name],
+                            logs / (name + '_merge_recovery.log'), env, repo)
+                    run([config['encoder_python'], repo / 'inference_gt2d/compute_metrics_3d.py',
+                         'scannet', '--pred-dir', save_name, '--exp-name', exp_name],
+                        out / 'runs' / save_name / 'metrics.log', env, repo)
             else:
                 run(['bash', repo / 'inference_gt2d/run_scannet_fast16.sh',
                      v['profile'], v['checkpoint'], save_name], logs / (name + '_encoder.log'), env, repo)
@@ -277,7 +296,7 @@ def main():
                 future.result()
     finally:
         cleanup()
-    if any(v['phase'] != 'complete' for v in state.values()):
+    if any(state[v['name']]['phase'] != 'complete' for v in variants):
         raise SystemExit(1)
 
 

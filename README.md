@@ -36,6 +36,24 @@ python eval_mmsi_bench.py --data /path/to/MMSI-Bench \
 
 Add `--export-media-dir data/media/mmsi` to export embedded images or frames. Generate geometry for the same dataset version, split, and sample order. See [Geometry format](docs/geometry_schema.md) for object, track, timestamp, and camera-pose fields.
 
+To prepare multiple complete datasets in the background, copy
+[the preparation config](configs/prepare_benchmarks.example.json), set local paths
+or pinned Hugging Face revisions, then run:
+
+```bash
+mkdir -p logs
+nohup python -u -m scripts.prepare_benchmarks \
+  --config configs/my_preparation.json --output-root data/prepared \
+  --workers 3 > logs/preparation.log 2>&1 < /dev/null &
+```
+
+Each job writes `status.json` and `<split>/manifest.json` under its output
+directory. Rerun the same command to resume. Preparation checks local media,
+exports embedded images and records video timing from the container. Video
+validation decodes the first frame; it does not certify every frame. The
+`encoder_inputs_ready` state means media are ready for geometry generation;
+encoder inference and LLM evaluation are separate steps.
+
 Convert existing scene boxes when needed:
 
 ```bash

@@ -15,6 +15,10 @@ def export_media(value, directory, stem="input", kind="image"):
     if isinstance(value, (list, tuple)):
         return [export_media(item, root, f"{stem}_{i:04d}", kind) for i,item in enumerate(value)]
     if isinstance(value, dict):
+        if value.get('type') == 'zip_image':
+            import zipfile
+            with zipfile.ZipFile(value['archive']) as archive:
+                return export_media(archive.read(value['member']), root, stem, kind)
         if value.get("__lazy_hf_images__") or value.get("__lazy_hf_video__"):
             raw = value["dataset"].data.column(value["column"])[value["row_index"]].as_py()
             return export_media(raw, root, stem, kind)

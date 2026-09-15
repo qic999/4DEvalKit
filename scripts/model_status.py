@@ -14,6 +14,19 @@ def main():
     args = parser.parse_args()
     root = Path(args.run_dir)
     state = json.loads((root / 'status.json').read_text())
+    final_path = root / 'recovery/final_status.json'
+    if final_path.is_file():
+        from scripts.finish_scannet_recovery import process_identity
+        final = json.loads(final_path.read_text())
+        final['alive'] = process_identity(final['pid']) is not None
+        worker_path = root / 'recovery/full_final39_process.json'
+        if worker_path.is_file():
+            worker = json.loads(worker_path.read_text())
+            text = Path(worker['log']).read_text(errors='replace')
+            worker.update(alive=process_identity(worker['pid']) is not None,
+                          completed_clips=len(re.findall(r'\[write\]', text)))
+            final['encoder_worker'] = worker
+        state['final_recovery'] = final
     elastic_path = root / 'elastic/status.json'
     elastic = json.loads(elastic_path.read_text()) if elastic_path.exists() else None
     if elastic:
