@@ -28,9 +28,21 @@ def main():
     p.add_argument('--config', required=True)
     p.add_argument('--output-root', required=True)
     p.add_argument('--jobs', nargs='+', help='Resume only these configured job names; preserve other job results')
+    p.add_argument('--geometry-root', help='Reuse complete geometry from an earlier run; run only text QA')
     args = p.parse_args()
     config = read_json(args.config)
+    if config.get('qa_max_tokens', 512) < 1 or config.get('qa_timeout', 120) <= 0:
+        p.error('QA token and timeout limits must be positive')
+    prerequisite = config.get('wait_for_controller')
+    if prerequisite and (not isinstance(prerequisite.get('start_time'), str)
+                         or not prerequisite['start_time'] or prerequisite.get('pid', 0) <= 0):
+        p.error('wait_for_controller needs a PID and a nonempty recorded process start time')
     out = Path(args.output_root).resolve()
+    geometry_root = Path(args.geometry_root).resolve() if args.geometry_root else out
+    if args.geometry_root:
+        if geometry_root == out:
+            p.error('QA-only evaluation needs a separate output root to preserve the original results')
+        config['geometry_root'] = str(geometry_root)
     out.mkdir(parents=True, exist_ok=True)
     known_jobs = {j['name'] for j in config['jobs']}
     if args.jobs and set(args.jobs) - known_jobs:
@@ -70,6 +82,8 @@ def main():
     signal.signal(signal.SIGINT, interrupted)
 
     def produce():
+        if args.geometry_root:
+            return
         for job in jobs:
             name = job['name']
             try:
@@ -107,6 +121,18 @@ def main():
             name = job['name']
             workers = []
             try:
+                if args.geometry_root:
+                    expected = {r['sample_id'] for r in read_json(job['manifest'])['samples']}
+                    coverage = {}
+                    for variant in config['variants']:
+                        scenes = GeometryStore(geometry_root/name/variant['name']/'geometry.json').scenes
+                        if set(scenes) != expected:
+                            raise ValueError('Incomplete cached geometry coverage')
+                        coverage[variant['name']] = {'samples':len(scenes),
+                            'empty_scenes':sum(not (s.get('objects') or s.get('tracks') or any(v['objects'] for v in s.get('views',[]))) for s in scenes.values())}
+                    status(name, phase='geometry_complete', coverage=coverage,
+                           geometry_root=str(geometry_root))
+                    continue
                 proposal_ready[name].wait()
                 index_file = out/name/'proposals/index.json'
                 if not index_file.exists() or states[name].get('proposal_phase')=='failed':
@@ -158,14 +184,25 @@ def main():
                 geometry_ready[name].wait()
                 if states[name]['phase']=='failed': continue
                 if server is None:
+                    prerequisite = config.get('wait_for_controller')
+                    if prerequisite:
+                        status(name, phase='waiting_for_controller')
+                        while process_identity(prerequisite['pid']) == prerequisite['start_time']:
+                            time.sleep(10)
                     prior = config.get('wait_for_scannet_status')
                     while prior and Path(prior).exists():
                         previous = read_json(prior)
                         if previous['phase'] in {'complete','failed'} or process_identity(previous['pid']) is None: break
                         time.sleep(10)
-                    used = subprocess.check_output(['nvidia-smi','--query-gpu=index,memory.used','--format=csv,noheader,nounits'],text=True)
-                    if any(int(m)>1024 for i,m in (line.split(',') for line in used.splitlines()) if int(i)==config['llm_gpu']):
-                        raise RuntimeError('Reasoning GPU is still occupied')
+                    release_deadline = time.monotonic() + 300
+                    while True:
+                        used = subprocess.check_output(['nvidia-smi','--query-gpu=index,memory.used','--format=csv,noheader,nounits'],text=True)
+                        busy = any(int(m)>1024 for i,m in (line.split(',') for line in used.splitlines()) if int(i)==config['llm_gpu'])
+                        if not busy:
+                            break
+                        if not prerequisite or time.monotonic() > release_deadline:
+                            raise RuntimeError('Reasoning GPU is still occupied')
+                        time.sleep(5)
                     server = spawn([config['llm_python'],'-m','vllm.entrypoints.openai.api_server',
                         '--model',config['llm_model'],'--served-model-name',config['llm_name'],
                         '--host','127.0.0.1','--port',config['llm_port'],'--dtype','bfloat16','--max-model-len','131072',
@@ -186,9 +223,12 @@ def main():
                     for variant in config['variants']:
                         result = out/name/variant['name']/'qa.json'
                         cmd = [sys.executable,'eval.py','--benchmark',job['benchmark'],'--data',job['data'],
-                            '--split',job['split'],'--geometry',out/name/variant['name']/'geometry.json',
+                            '--split',job['split'],'--geometry',geometry_root/name/variant['name']/'geometry.json',
                             '--model',config['llm_name'],'--base-url',f"http://127.0.0.1:{config['llm_port']}/v1",
-                            '--temperature','0','--seed','0','--max-tokens','512','--concurrency','8','--batch-size','16',
+                            '--temperature','0','--seed','0',
+                            '--max-tokens',config.get('qa_max_tokens',512),
+                            '--timeout',config.get('qa_timeout',120),
+                            '--concurrency','8','--batch-size','16',
                             '--geometry-decimals','4','--max-prompt-chars','600000',
                             '--extra-body','{"chat_template_kwargs":{"enable_thinking":false}}',
                             '--run-label',variant['name']+'_pred2d_pred3d_predpose','--output',result,'--resume']
@@ -203,6 +243,9 @@ def main():
                     status(name, phase='complete', results=results)
                 except Exception as exc:
                     status(name, phase='failed', error=str(exc))
+        except Exception as exc:
+            status(name, phase='failed', error=str(exc))
+            raise
         finally:
             if server and server.poll() is None: os.killpg(server.pid,signal.SIGTERM)
 

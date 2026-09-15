@@ -96,6 +96,35 @@ failures are retried up to three times with a fresh decoder; invalid time
 intervals still fail immediately. Cached geometry must match the original
 input and checkpoint fingerprints before it can be reused.
 
+## Longer answers without rerunning the encoders
+
+Inspect `finish_reason` and `usage.completion_tokens` in `qa.json`. A response
+that ends with `length` at the configured output limit is truncated. The default
+limit is 512 tokens. In a copy of the run config, set `qa_max_tokens` to 4096 and
+`qa_timeout` to 300, then run a separate QA evaluation from the saved geometry:
+
+```bash
+nohup python -u -m scripts.run_media_models \
+  --config configs/my_long_answer_run.json \
+  --geometry-root results/media_models \
+  --output-root results/media_qa4096 \
+  --jobs qspatial_plus \
+  > logs/media_qa4096.log 2>&1 < /dev/null &
+```
+
+This checks complete sample coverage and evaluates every question for both
+variants with the new output budget. It preserves the original geometry and
+scores, and records the new token limit in the QA manifest. Keep the prompts,
+models and scoring settings fixed when comparing budgets. Longer budgets can
+still truncate unusually verbose answers; check the resulting status counts.
+
+When another controller still needs the reasoning GPU, add
+`"wait_for_controller": {"pid": 12345, "start_time": "..."}` to the new config.
+Use `scripts.finish_scannet_recovery.process_identity(pid)` for the recorded
+start time. The new run waits for that exact process to exit before loading its
+reasoning server. Do not run two independent controllers on the same GPU
+without coordinating their lifetimes.
+
 For individual stages, run `python -m scripts.generate_media_proposals --help`
 and `python -m scripts.encode_media_geometry --help` in the corresponding
 environments, then pass the resulting geometry to the normal `eval.py` CLI.
