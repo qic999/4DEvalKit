@@ -43,6 +43,8 @@ encoders. Its settings are recorded with every result:
 - Images retain their source order. Videos use up to 16 uniformly sampled
   frames within the published question interval, or the full video when no
   interval is supplied. Timestamps remain relative to the original video.
+  Single-time annotations select the nearest frame; an annotation exactly at
+  the container duration selects the last frame with its actual timestamp.
 - The first sampled frame initializes object slots. Later frames propagate the
   native tracker. Every sampled frame has an inference stage; later stages do
   not receive conditioning boxes. Objects entering later can be missed.
@@ -78,6 +80,21 @@ Missing or duplicate question IDs fail the geometry merge. Request failures
 fail the QA job; truncated model responses remain recorded as failures in the
 benchmark denominator. Aggregate scores appear only after all questions in the
 split have been covered.
+
+To recover only failed jobs, pass their configured names with `--jobs`:
+
+```bash
+nohup python -u -m scripts.run_media_models \
+  --config configs/my_media_models.json \
+  --output-root results/media_models \
+  --jobs sti_bench_train dsi_bench_all \
+  > logs/media_models_recovery.log 2>&1 < /dev/null &
+```
+
+Unselected jobs keep their previous status and results. Video open/decode
+failures are retried up to three times with a fresh decoder; invalid time
+intervals still fail immediately. Cached geometry must match the original
+input and checkpoint fingerprints before it can be reused.
 
 For individual stages, run `python -m scripts.generate_media_proposals --help`
 and `python -m scripts.encode_media_geometry --help` in the corresponding

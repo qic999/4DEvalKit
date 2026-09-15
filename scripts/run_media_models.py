@@ -27,12 +27,16 @@ def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('--config', required=True)
     p.add_argument('--output-root', required=True)
+    p.add_argument('--jobs', nargs='+', help='Resume only these configured job names; preserve other job results')
     args = p.parse_args()
     config = read_json(args.config)
     out = Path(args.output_root).resolve()
     out.mkdir(parents=True, exist_ok=True)
-    jobs = config['jobs']
-    states = {j['name']: {'phase':'queued'} for j in jobs}
+    known_jobs = {j['name'] for j in config['jobs']}
+    if args.jobs and set(args.jobs) - known_jobs:
+        p.error('Unknown jobs: ' + ', '.join(sorted(set(args.jobs) - known_jobs)))
+    jobs = [j for j in config['jobs'] if not args.jobs or j['name'] in args.jobs]
+    states = {j['name']: {'phase':'queued'} for j in config['jobs']}
     lock = threading.RLock()
     children = []
     proposal_ready = {j['name']: threading.Event() for j in jobs}
@@ -40,7 +44,8 @@ def main():
     def status(name, **fields):
         with lock:
             states[name].update(fields)
-            write_json(out/'status.json', {'pid':os.getpid(), 'jobs':states, 'updated':time.time()})
+            write_json(out/'status.json', {'pid':os.getpid(), 'jobs':states,
+                'selected_jobs':[j['name'] for j in jobs], 'updated':time.time()})
     def spawn(cmd, log, gpu=None):
         log.parent.mkdir(parents=True, exist_ok=True)
         env = dict(os.environ, OMP_NUM_THREADS='2', MKL_NUM_THREADS='2', OPENBLAS_NUM_THREADS='2',
@@ -80,7 +85,14 @@ def main():
                        '--max-objects',str(config.get('max_objects',40))]
                 proc = spawn(cmd,out/name/'logs/proposals.log',config['proposal_gpu'])
                 status(name, proposal_pid=proc.pid)
-                while not (dest/'index.json').exists() and proc.poll() is None:
+                # A previous run's index can exist before the new producer has
+                # replaced its stale status/PID. Encoders must not consume that
+                # stale status while waiting for missing proposal records.
+                while proc.poll() is None:
+                    producer_status = dest/'status.json'
+                    if ((dest/'index.json').exists() and producer_status.exists()
+                            and read_json(producer_status).get('pid') == proc.pid):
+                        break
                     time.sleep(2)
                 proposal_ready[name].set()
                 rc = proc.wait()
@@ -114,6 +126,8 @@ def main():
                     if any(p.poll() not in {None,0} for p in workers):
                         raise RuntimeError('An encoder shard failed; inspect per-shard logs')
                     time.sleep(5)
+                if any(p.returncode != 0 for p in workers):
+                    raise RuntimeError('An encoder shard failed; inspect per-shard logs')
                 expected = set(read_json(index_file)['config']['sample_ids'])
                 coverage = {}
                 for variant in config['variants']:
@@ -195,6 +209,11 @@ def main():
     with output_lock(out/'status.json'):
         if (out/'config.json').exists() and read_json(out/'config.json') != config:
             raise ValueError('Run settings changed; choose a fresh output root')
+        if args.jobs and (out/'status.json').exists():
+            previous = read_json(out/'status.json')['jobs']
+            for name in known_jobs - set(args.jobs):
+                if name in previous:
+                    states[name] = previous[name]
         write_json(out/'config.json',config)
         try:
             with ThreadPoolExecutor(3) as pool:
@@ -202,7 +221,7 @@ def main():
                 for future in futures: future.result()
         finally:
             cleanup()
-    if any(s['phase']!='complete' for s in states.values()): raise SystemExit(1)
+    if any(states[j['name']]['phase']!='complete' for j in jobs): raise SystemExit(1)
 
 
 if __name__ == '__main__':

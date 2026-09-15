@@ -52,6 +52,55 @@ def test_multiview_order_does_not_invent_timestamps(tmp_path):
     assert all('timestamp' not in f for f in frames)
 
 
+def test_video_point_annotations_use_real_frames_at_duration_and_fractional_times(tmp_path):
+    import cv2
+    path = tmp_path/'points.mp4'
+    writer = cv2.VideoWriter(str(path), cv2.VideoWriter_fourcc(*'mp4v'), 30, (32,32))
+    for _ in range(90):
+        writer.write(np.zeros((32,32,3), dtype=np.uint8))
+    writer.release()
+    row = {'media': {'video': {'path': str(path)}}}
+    for requested, expected in [(3.,89), (.6000000000000001,18), (.61,18)]:
+        row['input_metadata'] = {'time_start':requested, 'time_end':requested}
+        images,frames = read_frames(row)
+        assert len(images) == len(frames) == 1
+        assert frames[0]['frame_index'] == expected
+        assert frames[0]['timestamp'] == expected/30
+    row['input_metadata'] = {'time_start':3.1, 'time_end':3.1}
+    with pytest.raises(ValueError, match='outside'):
+        read_frames(row)
+
+
+def test_video_retries_transient_reads_but_never_invalid_intervals(monkeypatch):
+    import cv2
+    from scripts import media_inputs
+    captures = []
+    class Capture:
+        def __init__(self, path):
+            self.first = not captures
+            self.released = False
+            captures.append(self)
+        def get(self, key):
+            return 0 if self.first else 30
+        def set(self, *args):
+            pass
+        def read(self):
+            return True, np.zeros((32,32,3), dtype=np.uint8)
+        def release(self):
+            self.released = True
+    monkeypatch.setattr(cv2, 'VideoCapture', Capture)
+    monkeypatch.setattr(media_inputs.time, 'sleep', lambda _: None)
+    row = {'media': {'video': {'path':'transient.mp4'}}}
+    images,frames = read_frames(row, video_frames=2)
+    assert len(captures) == 2 and all(c.released for c in captures)
+    assert len(images) == len(frames) == 2
+    assert [f['frame_index'] for f in frames] == [0,29]
+    row['input_metadata'] = {'time_start':10, 'time_end':11}
+    with pytest.raises(ValueError, match='outside'):
+        read_frames(row)
+    assert len(captures) == 3 and captures[-1].released
+
+
 def test_metric_boxes_and_camera_motion_are_not_confused():
     pose0, pose1 = np.eye(4), np.eye(4)
     pose1[0,3] = 1
