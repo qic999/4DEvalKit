@@ -171,8 +171,11 @@ nohup python -u -m scripts.run_observation_ablations \
 The sequence waits for the recorded native-answer run, checks complete sample
 coverage and verifies every response ended normally and matches its declared
 format. Any truncation or missing answer prevents comparisons from starting.
-It then waits for the source evaluation controller to finish, loads one
-multimodal reasoner per available configured GPU, and runs the comparisons.
+When `source_process_file` is set, it then waits for the source evaluation
+controller to finish. Omit this field once all geometry files have been fully
+published and will remain unchanged; comparisons can then use idle GPUs while
+the source run finishes QA. The suite loads one multimodal reasoner per
+available configured GPU and runs the comparisons.
 Controllers record process start times to distinguish restarted or reused PIDs.
 Reasoning servers coordinate through GPU leases and check current GPU occupancy.
 Per-task progress and scores are saved in `status.json`; each task has its own

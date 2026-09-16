@@ -99,7 +99,10 @@ def main():
             wait_controller(Path(config['answer_run'])/'process.json','waiting_for_answer_audit')
             audit=audit_answers(config['answer_run']);write_json(out/'answer_audit.json',audit)
             save(phase='answer_audit_passed',answer_audit=audit)
-            wait_controller(config['source_process_file'],'waiting_for_source_evaluations')
+            # Precomputed, atomically published geometry can be reused while the
+            # source controller finishes QA. GPU leases still serialize servers.
+            if config.get('source_process_file'):
+                wait_controller(config['source_process_file'],'waiting_for_source_evaluations')
             tasks=queue.Queue()
             for job in config['jobs']:
                 for mode in job.get('modes',['rgb','boxes','rgb_boxes']):
@@ -114,6 +117,7 @@ def main():
             def worker(gpu):
                 server=None;lease=None
                 try:
+                    with guard:state['workers'][str(gpu)]={'phase':'waiting_for_gpu'};save()
                     lease=acquire_gpu(gpu)
                     used=subprocess.check_output(['nvidia-smi','--query-gpu=index,memory.used','--format=csv,noheader,nounits'],text=True)
                     if any(int(m)>1024 for i,m in (s.split(',') for s in used.splitlines()) if int(i)==gpu):
@@ -127,6 +131,7 @@ def main():
                         '--mm-processor-kwargs',json.dumps({'min_pixels':65536,
                             'max_pixels':config.get('max_image_pixels',262144)})],
                         out/'logs'/f'server_gpu{gpu}.log',gpu)
+                    with guard:state['workers'][str(gpu)]={'phase':'starting_server','server_pid':server.pid};save()
                     deadline=time.monotonic()+1800
                     while True:
                         if server.poll() is not None or time.monotonic()>deadline:
