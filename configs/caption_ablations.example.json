@@ -1,0 +1,24 @@
+{
+  "llm_python": "/path/to/llm/bin/python",
+  "llm_model": "/path/to/Qwen3.5-9B/snapshot",
+  "llm_name": "qwen35_9b",
+  "gpus": [0, 1, 2, 3, 4, 5, 6, 7],
+  "base_port": 23600,
+  "max_image_pixels": 262144,
+  "caption_token_budgets": [1024, 2048, 4096],
+  "caption_concurrency": 32,
+  "qa_concurrency": 32,
+  "jobs": [
+    {
+      "name": "qspatial_plus",
+      "benchmark": "Q-Spatial-Bench",
+      "data": "/path/to/QSpatial_plus.parquet",
+      "split": "QSpatial_plus",
+      "manifest": "data/prepared/qspatial/QSpatial_plus/manifest.json",
+      "geometries": [
+        {"name": "full", "path": "results/media_models/qspatial_plus/full/geometry.json"},
+        {"name": "small", "path": "results/media_models/qspatial_plus/small/geometry.json"}
+      ]
+    }
+  ]
+}

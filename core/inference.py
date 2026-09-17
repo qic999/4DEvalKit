@@ -4,6 +4,8 @@ from __future__ import annotations
 import json
 import http.client
 import os
+import itertools
+import threading
 import time
 import urllib.error
 import urllib.request
@@ -14,11 +16,17 @@ from .io import read_json
 
 class APIInferenceEngine:
     def __init__(self, *, model, base_url, api_key_env="OPENAI_API_KEY", timeout=120,
-                 retries=2, max_tokens=512, temperature=0.0, seed=0, extra_body=None):
-        parsed = urlparse(base_url)
-        if parsed.scheme not in {"http", "https"} or not parsed.netloc or parsed.username or parsed.password or parsed.query or parsed.fragment:
-            raise ValueError("--base-url must be an HTTP(S) server URL without embedded credentials or query parameters")
+                 retries=2, max_tokens=512, temperature=0.0, seed=0, extra_body=None, base_urls=None):
+        endpoints = base_urls or [base_url]
+        for endpoint in endpoints:
+            parsed = urlparse(endpoint)
+            if parsed.scheme not in {"http", "https"} or not parsed.netloc or parsed.username or parsed.password or parsed.query or parsed.fragment:
+                raise ValueError("--base-url must be an HTTP(S) server URL without embedded credentials or query parameters")
+        if len(set(endpoints)) != len(endpoints):
+            raise ValueError('Duplicate inference endpoints')
         self.url = base_url.rstrip("/") + "/chat/completions"
+        self._urls = itertools.cycle(u.rstrip('/') + '/chat/completions' for u in endpoints)
+        self._url_lock = threading.Lock()
         self.model, self.timeout, self.retries = model, timeout, retries
         self.api_key = os.getenv(api_key_env, "")
         self.generation = dict(max_tokens=max_tokens, temperature=temperature, seed=seed)
@@ -38,7 +46,9 @@ class APIInferenceEngine:
         start = time.monotonic()
         for attempt in range(self.retries + 1):
             try:
-                request = urllib.request.Request(self.url, data=json.dumps(payload).encode(), headers=headers)
+                with self._url_lock:
+                    url = next(self._urls)
+                request = urllib.request.Request(url, data=json.dumps(payload).encode(), headers=headers)
                 with urllib.request.urlopen(request, timeout=self.timeout) as response:
                     data = json.load(response)
                 choice = data["choices"][0]

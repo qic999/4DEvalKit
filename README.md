@@ -119,6 +119,13 @@ their required final-answer formats. Use `--observation-mode rgb`, `boxes`, or
 [native answer formats and matched ablations](docs/rgb_evaluation.md#native-answer-formats-and-matched-observation-ablations)
 for setup, output-budget settings, and background execution.
 
+For caption-only and caption + geometry comparisons, see
+[caption evaluation](docs/caption_evaluation.md). The launcher generates and
+caches a shared RGB description without access to questions or answers, then
+runs text-input QA across the configured GPUs. Individual runs use
+`--observation-mode caption` or `caption_boxes` with `--captions` and
+`--media-manifest`.
+
 ## Evaluate dynamic scenes
 
 Provide `tracks[].observations[]` with stable track IDs, timestamps in seconds, and per-frame boxes in a consistent coordinate frame. Use `--require-tracks` to validate that tracks are present.

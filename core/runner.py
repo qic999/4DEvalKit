@@ -90,12 +90,13 @@ def run(args):
     if observation_mode != 'legacy':
         from .observations import ObservationManifest
         observations = ObservationManifest(args.media_manifest, mode=observation_mode,
-            max_pixels=args.max_image_pixels, video_frames=args.video_frames)
-        if observation_mode in {'boxes','rgb_boxes'} and not geometry:
+            max_pixels=args.max_image_pixels, video_frames=args.video_frames,
+            captions=getattr(args, 'captions', None))
+        if observation_mode in {'boxes','rgb_boxes','caption_boxes'} and not geometry:
             raise ValueError('Box observation modes require --geometry')
-        if observation_mode == 'rgb' and geometry:
-            raise ValueError('RGB-only ablation must not receive a geometry file')
-    if not geometry and not replay and not args.export_manifest and observation_mode != 'rgb':
+        if observation_mode in {'rgb', 'caption'} and geometry:
+            raise ValueError('RGB-only or caption-only ablation must not receive a geometry file')
+    if not geometry and not replay and not args.export_manifest and observation_mode not in {'rgb', 'caption'}:
         raise ValueError("Provide --geometry (model predictions) or --predictions (offline scoring)")
     if args.require_tracks and geometry is None:
         raise ValueError("--require-tracks needs --geometry")
@@ -118,6 +119,8 @@ def run(args):
               "geometry_digest": digest(geometry.scenes) if geometry else None,
               "replay_digest": digest(replay.outputs) if replay else None,
               "python": platform.python_version()}
+    if getattr(args, 'base_urls', None):
+        config['base_urls'] = args.base_urls
     if getattr(args, 'geometry_decimals', None) is not None:
         config['geometry_decimals'] = args.geometry_decimals
     constrained = getattr(args, 'answer_format', 'free') == 'native'
@@ -170,7 +173,8 @@ def run(args):
             raise ValueError("Live inference requires --model (the served reasoning LLM name)")
         engine = APIInferenceEngine(model=args.model, base_url=args.base_url, api_key_env=args.api_key_env,
             timeout=args.timeout, retries=args.retries, max_tokens=args.max_tokens,
-            temperature=args.temperature, seed=args.seed, extra_body=args.extra_body)
+            temperature=args.temperature, seed=args.seed, extra_body=args.extra_body,
+            base_urls=getattr(args, 'base_urls', None))
     manifest_path = output.with_suffix(".manifest.json")
     journal_path = output.with_suffix(".jsonl")
     with output_lock(output):

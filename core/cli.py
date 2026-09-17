@@ -23,6 +23,7 @@ def main(default_benchmark=None):
     parser.add_argument("--run-label", default="", help="Experiment identity, e.g. full_pred3d or small_gt2d_pred3d")
     parser.add_argument("--model", default="unspecified", help="Served LLM name; the encoder checkpoint belongs in geometry provenance")
     parser.add_argument("--base-url", help="OpenAI-compatible endpoint including /v1")
+    parser.add_argument('--base-urls', nargs='+', help='Identically configured replicas; distribute requests across these endpoints')
     parser.add_argument("--api-key-env", default="OPENAI_API_KEY")
     parser.add_argument("--predictions", help="Score an existing prediction JSON/JSONL without contacting an LLM")
     parser.add_argument("--output", default="results/evaluation.json")
@@ -38,9 +39,10 @@ def main(default_benchmark=None):
     parser.add_argument("--max-tokens", type=int, default=512)
     parser.add_argument('--answer-format', choices=['free', 'native'], default='free',
                         help='native constrains final answers to public option letters or numeric formats')
-    parser.add_argument('--observation-mode', choices=['legacy','boxes','rgb','rgb_boxes'], default='legacy',
+    parser.add_argument('--observation-mode', choices=['legacy','boxes','rgb','rgb_boxes','caption','caption_boxes'], default='legacy',
                         help='Nonlegacy modes use a common prompt for RGB/box ablations')
     parser.add_argument('--media-manifest', help='Prepared public media manifest for matched ablations')
+    parser.add_argument('--captions', help='Complete shared RGB caption bundle for caption or caption_boxes mode')
     parser.add_argument('--max-image-pixels', type=int, default=262144)
     parser.add_argument('--video-frames', type=int, default=16)
     parser.add_argument("--max-prompt-chars", type=int, default=150000)
@@ -62,6 +64,14 @@ def main(default_benchmark=None):
         parser.error("--export-media-dir requires --export-manifest")
     if args.observation_mode != 'legacy' and not args.media_manifest:
         parser.error('Matched observation ablations require --media-manifest')
+    if args.observation_mode in {'caption', 'caption_boxes'} and not args.captions:
+        parser.error('Caption modes require --captions')
+    if args.captions and args.observation_mode not in {'caption', 'caption_boxes'}:
+        parser.error('--captions requires a caption observation mode')
+    if args.base_urls:
+        if args.base_url and args.base_url != args.base_urls[0]:
+            parser.error('--base-url must match the first --base-urls endpoint')
+        args.base_url = args.base_urls[0]
     if args.max_image_pixels < 1 or args.video_frames < 1:
         parser.error('Image pixel and video frame limits must be positive')
     if min(args.batch_size, args.concurrency, args.max_tokens, args.max_prompt_chars) <= 0 or args.timeout <= 0 or args.retries < 0:
