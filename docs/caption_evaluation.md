@@ -23,6 +23,9 @@ nohup python -u -m scripts.run_caption_ablations \
 The controller loads one identical Qwen3.5-9B replica on each configured GPU.
 Caption generation and QA both distribute requests across all replicas, including
 when only one benchmark remains. It uses GPU leases and checks device occupancy.
+If another job occupies a device, the controller waits for it to become free
+(up to 72 hours by default, configurable with `gpu_wait_seconds`). It leaves
+existing jobs running and records the wait in `status.json`.
 Qwen3.5-9B is a multimodal model: the caption generator receives RGB, while the
 QA calls receive only text. This is not a separate text-only model backbone.
 

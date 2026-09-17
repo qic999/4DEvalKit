@@ -14,6 +14,20 @@ from scripts.gpu_lease import acquire_gpu
 ROOT = Path(__file__).resolve().parents[1]
 
 
+def wait_for_free_gpu(gpu, update, timeout=72*3600):
+    deadline = time.monotonic() + timeout
+    while True:
+        used = subprocess.check_output(['nvidia-smi', '--query-gpu=index,memory.used',
+                                        '--format=csv,noheader,nounits'], text=True)
+        memory = next(int(m) for i, m in (s.split(',') for s in used.splitlines()) if int(i) == gpu)
+        if memory <= 1024:
+            return
+        update(gpu, phase='waiting_for_available_memory', memory_used_mib=memory)
+        if time.monotonic() > deadline:
+            raise TimeoutError(f'GPU {gpu} remained occupied for {timeout} seconds')
+        time.sleep(20)
+
+
 class ReasonerPool:
     def __init__(self, config, output, update):
         self.config, self.output, self.update = config, Path(output), update
@@ -38,10 +52,7 @@ class ReasonerPool:
             lease = acquire_gpu(gpu)
             with self.lock:
                 self.leases[gpu] = lease
-            used = subprocess.check_output(['nvidia-smi', '--query-gpu=index,memory.used',
-                                            '--format=csv,noheader,nounits'], text=True)
-            if any(int(m) > 1024 for i, m in (s.split(',') for s in used.splitlines()) if int(i) == gpu):
-                raise RuntimeError(f'GPU {gpu} is occupied')
+            wait_for_free_gpu(gpu, self.update, self.config.get('gpu_wait_seconds', 72*3600))
             c = self.config; port = c.get('base_port', 23600) + gpu
             command = [c['llm_python'], '-m', 'vllm.entrypoints.openai.api_server',
                        '--model', c['llm_model'], '--served-model-name', c['llm_name'],

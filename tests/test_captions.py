@@ -125,3 +125,14 @@ def test_replica_pool_distributes_identical_requests(monkeypatch):
     for _ in range(4): assert engine.infer(messages, structured_outputs={'choice': ['A', 'B']})['status'] == 'ok'
     assert [r[0] for r in sent] == [u+'/chat/completions' for u in urls*2]
     assert all(r[1] == sent[0][1] for r in sent)
+
+
+def test_busy_gpu_is_waited_for_without_starting_another_server(monkeypatch):
+    from scripts import reasoner_pool
+    readings = iter(['0, 20000\n1, 1\n', '0, 1\n1, 1\n'])
+    monkeypatch.setattr(reasoner_pool.subprocess, 'check_output', lambda *a, **kw: next(readings))
+    pauses = []; updates = []
+    monkeypatch.setattr(reasoner_pool.time, 'sleep', pauses.append)
+    reasoner_pool.wait_for_free_gpu(0, lambda gpu, **kw: updates.append((gpu, kw)))
+    assert pauses == [20]
+    assert updates == [(0, {'phase': 'waiting_for_available_memory', 'memory_used_mib': 20000})]

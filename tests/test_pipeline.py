@@ -253,6 +253,43 @@ def test_http_text_prompt_and_resume(tmp_path):
         server.shutdown(); server.server_close(); worker.join()
 
 
+def test_caption_modes_complete_scoring_resume_and_reject_changed_captions(tmp_path, monkeypatch):
+    from core import inference
+    from core.captions import VERSION
+    from core.io import digest
+    requests = []
+    def respond(request, **kwargs):
+        body = json.loads(request.data); requests.append(body)
+        assert 'image_url' not in json.dumps(body)
+        answer = 'B' if 'stayed still' in json.dumps(body) else 'A'
+        return io.StringIO(json.dumps({'choices': [{'message': {'content': answer}, 'finish_reason': 'stop'}]}))
+    monkeypatch.setattr(inference.urllib.request, 'urlopen', respond)
+    args = settings(tmp_path)
+    session = BenchmarkSession(get_spec('VLM4D'), data=args.data, split='real_mc', model_name='test-llm')
+    manifest = {'samples': [media_manifest(e) for b in session.batches() for e in b]}
+    manifest_path = tmp_path/'manifest.json'; write_json(manifest_path, manifest)
+    caption_data = {'schema_version': VERSION, 'config': {'model': 'caption-generator'},
+                    'media_manifest_digest': digest(manifest), 'samples': [
+                        {'sample_id': r['sample_id'], 'caption': 'A chair moves next to a stationary table.',
+                         'status': 'ok', 'finish_reason': 'stop'} for r in manifest['samples']]}
+    caption_path = tmp_path/'captions.json'; write_json(caption_path, caption_data)
+    geometry_path = args.geometry
+    for mode in ['caption', 'caption_boxes']:
+        args = settings(tmp_path, geometry=geometry_path if mode == 'caption_boxes' else None,
+            observation_mode=mode, captions=str(caption_path), media_manifest=str(manifest_path),
+            max_image_pixels=262144, video_frames=16, answer_format='native', geometry_decimals=4,
+            output=str(tmp_path/(mode+'.json')), base_url='http://localhost:1/v1',
+            base_urls=['http://localhost:1/v1', 'http://localhost:2/v1'])
+        result = run(args)
+        assert result['status_counts'] == {'ok': 2} and result['primary_metric']['score_100'] == 100
+        args.resume = True
+        assert run(args)['reused_predictions'] == 2
+    assert len(requests) == 4
+    caption_data['samples'][0]['caption'] = 'A changed description.'; write_json(caption_path, caption_data)
+    with pytest.raises(ValueError, match='Resume configuration mismatch'):
+        run(args)
+
+
 def test_journal_recovers_only_partial_final_line(tmp_path):
     path = tmp_path / "journal.jsonl"
     path.write_text('{"sample_id":"1"}\n{"sample_id":')
