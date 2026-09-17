@@ -136,3 +136,23 @@ def test_busy_gpu_is_waited_for_without_starting_another_server(monkeypatch):
     reasoner_pool.wait_for_free_gpu(0, lambda gpu, **kw: updates.append((gpu, kw)))
     assert pauses == [20]
     assert updates == [(0, {'phase': 'waiting_for_available_memory', 'memory_used_mib': 20000})]
+
+
+def test_caption_recovery_settings_invalidate_cache_identity():
+    from scripts.run_caption_ablations import caption_config
+    original = caption_config({'llm_name': 'test', 'llm_model': '/model'})
+    recovered = caption_config({'llm_name': 'test', 'llm_model': '/model', 'caption_repetition_penalty': 1.1})
+    assert digest(original) != digest(recovered)
+    assert original['extra_body'] == {'chat_template_kwargs': {'enable_thinking': False}}
+    assert recovered['extra_body']['repetition_penalty'] == 1.1
+    assert original['prompt'] == recovered['prompt']
+
+
+def test_caption_recovery_repeats_all_arms_only_for_incomplete_splits():
+    from scripts.recover_caption_ablations import incomplete_jobs
+    jobs = [{'name': n, 'geometries': [{'name': 'full'}, {'name': 'small'}]} for n in ['a', 'b']]
+    status = {'tasks': {f'{j}/{v}/{m}': {'phase': 'complete'} for j in ['a', 'b']
+                       for v, m in [('shared_caption', 'caption'), ('full', 'caption_boxes'), ('small', 'caption_boxes')]}}
+    assert incomplete_jobs({'jobs': jobs}, status) == []
+    status['tasks']['b/small/caption_boxes']['phase'] = 'failed'
+    assert incomplete_jobs({'jobs': jobs}, status) == [jobs[1]]

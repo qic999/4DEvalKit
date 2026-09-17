@@ -24,12 +24,18 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def caption_config(config):
-    return {'protocol': VERSION, 'model': config['llm_name'], 'model_path': config['llm_model'],
+    result = {'protocol': VERSION, 'model': config['llm_name'], 'model_path': config['llm_model'],
             'system': SYSTEM, 'prompt': PROMPT, 'temperature': 0, 'seed': 0,
             'max_tokens_attempts': config.get('caption_token_budgets', [1024, 2048, 4096]),
             'max_image_pixels': config.get('max_image_pixels', 262144), 'video_frames': 16,
             'jpeg_quality': 95, 'question_conditioned': False, 'geometry_conditioned': False,
             'extra_body': {'chat_template_kwargs': {'enable_thinking': False}}}
+    if 'caption_repetition_penalty' in config:
+        penalty = float(config['caption_repetition_penalty'])
+        if not 1 < penalty <= 2:
+            raise ValueError('Caption repetition penalty must be in (1, 2]')
+        result['extra_body']['repetition_penalty'] = penalty
+    return result
 
 
 def generate_caption(row, identity, key, config, engines):

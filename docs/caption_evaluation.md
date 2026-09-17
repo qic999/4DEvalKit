@@ -85,3 +85,23 @@ Use `--observation-mode caption_boxes --geometry /path/to/geometry.json` for
 caption + boxes. To distribute a single evaluation across identical replicas,
 replace `--base-url` with `--base-urls URL1 URL2 ...` and adjust `--concurrency`
 and `--batch-size`. Replica URLs are recorded in the run configuration.
+
+## Recover caption repetition failures
+
+When a caption repeats until every output budget is exhausted, keep it as a
+failed record. An optional recovery controller waits for the source suite to
+exit, then regenerates every caption and all three QA arms of each incomplete
+split with a caption-generation repetition penalty. This changes caption cache
+identities and is recorded as a separate run; QA settings remain unchanged.
+
+```bash
+nohup python -u -m scripts.recover_caption_ablations \
+  --source-root results/caption_ablations \
+  --output-root results/caption_recovery \
+  --caption-repetition-penalty 1.1 \
+  > logs/caption_recovery.log 2>&1 < /dev/null &
+```
+
+Recovery writes `recovery_status.json` and, after all arms pass their audits,
+`combined_summary.csv`/`.json` with a `run_source` field distinguishing original
+and recovery results. Keep that protocol distinction when reporting scores.
