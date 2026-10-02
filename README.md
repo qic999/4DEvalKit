@@ -1,10 +1,10 @@
 # 4DEvalKit
 
-Evaluate image, video, and geometry inputs with a language model, or score saved predictions offline.
+Evaluate spatial perception and reasoning on images, multiple views, and video.
+Choose a workflow below to score 3D boxes directly or answer benchmark questions
+from RGB, geometry, captions, or combinations of these inputs.
 
-## Install
-
-Use Python 3.10 or newer. Run commands from the repository root.
+Use Python 3.10 or newer for the toolkit and run commands from the repository root:
 
 ```bash
 git clone https://github.com/qic999/4DEvalKit.git
@@ -12,217 +12,190 @@ cd 4DEvalKit
 python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-
-python eval.py --list-benchmarks
-python eval.py --help
 ```
 
-For live inference, provide an OpenAI-compatible `/v1/chat/completions` endpoint. Use `--model` for the model name served by that endpoint and `--base-url` for its URL ending in `/v1`. If authentication is required, set an environment variable and select it with `--api-key-env`.
+Model inference and official perception scoring use separate environments.
+The dataset download helpers require Python 3.12 or newer.
+See the [usage guide](docs/usage.md) for input preparation, background suites,
+resume, offline scoring, and tests.
 
-## Prepare evaluation inputs
+## 3D Perception
 
-Each evaluation needs benchmark questions and geometry, visual observations, or saved model responses.
+Predict metric, oriented 3D boxes from an RGB image and ground-truth 2D box
+prompts, then score them with the pinned WildDet3D evaluator. This workflow
+does not use a language model. GT category IDs are attached for scoring;
+category names, GT depth, camera intrinsics, camera poses, and GT 3D boxes are
+not supplied to the encoder.
 
-- `--data`: a local dataset path or Hugging Face dataset ID. Omit it to use the benchmark's configured source.
-- `--geometry`: scene objects or timestamped object tracks, keyed by sample ID or a supported source ID. VSI-Bench also accepts scene names.
-- `--predictions`: saved responses for offline scoring.
+| Dataset | Split | Main metric |
+|---|---|---|
+| ScanNet | 3D-MOOD validation | Canonical ODS |
+| Argoverse 2 | 3D-MOOD validation | Canonical ODS |
+| Omni3D | KITTI, nuScenes, SUNRGBD, Hypersim, ARKitScenes, Objectron test splits | Oriented 3D IoU AP |
+| WildDet3D-Bench | InTheWild_v3_val | Center-distance AP |
 
-Export a sample manifest to obtain the IDs and media references needed to prepare geometry:
+These are box-conditioned 3D regression evaluations. Outdoor driving images
+also contain moving objects; single-frame scores measure their geometry, not
+their motion over time.
+
+Follow the [perception setup guide](docs/perception_evaluation.md) to obtain the
+annotations and original RGB files and install the official scorer. Set the
+Python executables for your encoder and scorer environments:
 
 ```bash
-python eval_mmsi_bench.py --data /path/to/MMSI-Bench \
-  --export-manifest data/manifests/mmsi.json
+export ENCODER_PYTHON=/path/to/encoder/env/bin/python
+export SCORER_PYTHON=/path/to/wilddet3d/env/bin/python
+
+git clone https://github.com/allenai/WildDet3D.git external/WildDet3D
+git -C external/WildDet3D checkout 1b8aa52b6ff3f00d0ebfa07175efc0c0c440964a
+
+$SCORER_PYTHON -m scripts.prepare_wilddet3d_perception \
+  --upstream external/WildDet3D \
+  --annotation data/scannet/annotations/ScanNet_val.json \
+  --data-root data/scannet --benchmark scannet \
+  --output results/perception/scannet_manifest.json
+
+CUDA_VISIBLE_DEVICES=0 $ENCODER_PYTHON -m scripts.encode_wilddet3d_perception \
+  --manifest results/perception/scannet_manifest.json \
+  --model-repo /path/to/spatial_encoder_v2_small \
+  --checkpoint /path/to/checkpoint.pt --profile lite \
+  --resolution 518 --spatial-resolution 518 --model-image-size 518 \
+  --output results/perception/scannet/small_e100
+
+$SCORER_PYTHON -m scripts.score_wilddet3d_perception \
+  --upstream external/WildDet3D \
+  --manifest results/perception/scannet_manifest.json \
+  --predictions results/perception/scannet/small_e100 \
+  --output results/perception/scannet/small_e100/metrics.json \
+  --metrics dist bbox
 ```
 
-Add `--export-media-dir data/media/mmsi` to export embedded images or frames. Generate geometry for the same dataset version, split, and sample order. See [Geometry format](docs/geometry_schema.md) for object, track, timestamp, and camera-pose fields.
+Match input sizes to the checkpoint: WDS518 e100 uses `518 / 518 / 518`;
+historical Full e64 and Small e34 use `1024 / 504 / 1008`. Full uses
+`--profile full`; both Small models use `--profile lite`.
 
-To prepare multiple complete datasets in the background, copy
-[the preparation config](configs/prepare_benchmarks.example.json), set local paths
-or pinned Hugging Face revisions, then run:
+For a complete background evaluation, edit the
+[perception suite config](configs/perception_evaluation.example.json), prepare
+its manifests, and run:
 
 ```bash
-mkdir -p logs
-nohup python -u -m scripts.prepare_benchmarks \
-  --config configs/my_preparation.json --output-root data/prepared \
-  --workers 3 > logs/preparation.log 2>&1 < /dev/null &
+mkdir -p logs results/perception
+cp configs/perception_comparison.example.json results/perception/comparison_config.json
+nohup python -u -m scripts.run_wilddet3d_perception \
+  --config configs/my_perception.json > logs/perception.log 2>&1 < /dev/null &
+python -m scripts.summarize_wilddet3d_perception --run-root results/perception
 ```
 
-Each job writes `status.json` and `<split>/manifest.json` under its output
-directory. Rerun the same command to resume. Preparation checks local media,
-exports embedded images and records video timing from the container. Video
-validation decodes the first frame; it does not certify every frame. The
-`encoder_inputs_ready` state means media are ready for geometry generation;
-encoder inference and LLM evaluation are separate steps.
+The [completed Full / Old Small / WDS518 e100 comparison](reports/wilddet3d_perception_20261002/comparison.md)
+includes individual datasets and the official joint Omni3D score, with
+[CSV](reports/wilddet3d_perception_20261002/comparison.csv) and
+[protocol metadata](reports/wilddet3d_perception_20261002/protocol.json).
+WildDet3D-Bench results use an explicitly recorded **2460/2470-image subset**.
+Paper values remain references where prompt modes, training data, or subsets differ.
 
-To generate predicted boxes and tracks directly from these media with Full/Small,
-see [RGB evaluation](docs/rgb_evaluation.md). The background launcher runs shared
-2D proposals, sharded encoder inference, and text reasoning from one config.
+## 3D Reasoning
 
-Convert existing scene boxes when needed:
+Evaluate spatial questions about objects, distances, directions, layout, and
+relationships across views. Supported benchmarks include BLINK, CV-Bench,
+3DSRBench, EmbSpatial-Bench, Q-Spatial-Bench, MindCube, MMSI-Bench,
+ViewSpatial-Bench, VSI-Bench, and SAT. Their question-answering scores are
+separate from the direct box metrics above.
 
-```bash
-python -m scripts.convert_geometry --format legacy \
-  --input /path/to/scene_boxes.json \
-  --output data/geometry/vsi_bench.json \
-  --units m --coordinate-frame world_z_up \
-  --geometry-source predicted --encoder my_encoder \
-  --checkpoint /path/to/checkpoint.pt \
-  --proposal-source predicted_2d --label-source detector \
-  --camera-pose-source predicted
-```
-
-Set provenance fields to match how the inputs were produced. For merged 10D boxes, use `--format merged --quaternion-order xyzw`; for a directory of scene files, also provide `--merged-name filename.json`.
-
-## Evaluate a benchmark
-
-Validate the question-to-geometry mapping before sending requests:
+Export a benchmark's public media manifest, then generate matching geometry
+with your encoder or convert existing boxes using the
+[geometry schema](docs/geometry_schema.md). A static scene observed in a video
+can still be a 3D spatial reasoning task.
 
 ```bash
 python eval_vsi_bench.py \
   --data /path/to/vsibench_qa.json --dataset scannet \
   --geometry data/geometry/vsi_bench.json \
   --dry-run --output results/vsi_check.json
-```
 
-Run inference and scoring:
-
-```bash
 python eval_vsi_bench.py \
   --data /path/to/vsibench_qa.json --dataset scannet \
   --geometry data/geometry/vsi_bench.json \
   --model YOUR_SERVED_MODEL --base-url http://localhost:8000/v1 \
-  --temperature 0 --seed 0 --max-tokens 512 \
-  --concurrency 8 --batch-size 16 \
-  --run-label my_encoder \
+  --temperature 0 --seed 0 --max-tokens 4096 \
   --output results/vsi_scannet.json --resume
 ```
 
-The unified entry point is equivalent:
+The endpoint must support `/v1/chat/completions`. Geometry-only and caption-only
+inputs can use a text model; RGB inputs require a vision-capable model. Offline
+scoring uses `--predictions saved_responses.json` instead of a live endpoint.
+Keep the VSI scoring protocol fixed across runs; the default is
+`--vsi-metric-protocol physbrain`.
+
+For controlled input comparisons, use `--observation-mode boxes`, `rgb`,
+`rgb_boxes`, `caption`, or `caption_boxes` with `--media-manifest`. Caption modes
+also need `--captions`. The guides cover
+[RGB and geometry comparisons](docs/rgb_evaluation.md#native-answer-formats-and-matched-observation-ablations),
+[caption comparisons](docs/caption_evaluation.md), and
+[evaluating a new checkpoint](docs/checkpoint_evaluation.md).
+On a compatible vLLM server, `--answer-format native` constrains supported
+tasks to the expected answer format; inspect completion status before comparing scores.
+
+Object boxes provide geometric information. Appearance, fine-grained parts,
+contact, and robot state may require additional observations. See the
+[benchmark matrix](docs/benchmark_matrix.md) for scope and extensions.
+
+## 4D Perception
+
+The current dynamic-scene perception evaluation uses **Stereo4D: 383 independent
+frames**, scored with center-distance AP and rare/common/frequent category AP.
+It measures per-frame 3D geometry in dynamic scenes. Cross-frame identity,
+trajectory accuracy, and temporal consistency metrics are **not implemented**.
+
+Download the original released images and prepare the manifest:
 
 ```bash
-python eval.py --benchmark VSI-Bench \
-  --data /path/to/vsibench_qa.json --dataset scannet \
-  --geometry data/geometry/vsi_bench.json \
-  --model YOUR_SERVED_MODEL --base-url http://localhost:8000/v1 \
-  --output results/vsi_scannet.json --resume
+python -m scripts.prepare_wilddet3d_stereo --output data/stereo4d
+
+$SCORER_PYTHON -m scripts.prepare_wilddet3d_perception \
+  --upstream external/WildDet3D \
+  --annotation data/stereo4d/annotations/Stereo4D_val.json \
+  --data-root data/stereo4d --benchmark stereo4d \
+  --output results/perception/stereo4d_manifest.json
 ```
 
-Use `--save-prompts` to retain prompts and `--limit 10` for a small trial. Pass endpoint-specific generation options with `--extra-body`, for example:
+Run `scripts.encode_wilddet3d_perception` and
+`scripts.score_wilddet3d_perception` as above, using this manifest and separate
+`results/perception/stereo4d/<model>/` output directories. Select `--metrics dist`
+for the main score. The [perception comparison](reports/wilddet3d_perception_20261002/comparison.md)
+reports this frame-level result explicitly.
 
-```bash
---extra-body '{"chat_template_kwargs":{"enable_thinking":false}}'
-```
+The [RGB video pipeline](docs/rgb_evaluation.md#inputs-and-geometry) also exports
+timestamped boxes, stable object slots, and predicted camera poses for downstream
+reasoning. Exporting tracks is distinct from evaluating them against temporal
+ground truth. Its first-frame proposal strategy can miss objects entering later.
 
-On a vLLM server, use `--answer-format native` to constrain supported tasks to
-their required final-answer formats. Use `--observation-mode rgb`, `boxes`, or
-`rgb_boxes` with `--media-manifest` for matched input comparisons. See
-[native answer formats and matched ablations](docs/rgb_evaluation.md#native-answer-formats-and-matched-observation-ablations)
-for setup, output-budget settings, and background execution.
+## 4D Reasoning
 
-For caption-only and caption + geometry comparisons, see
-[caption evaluation](docs/caption_evaluation.md). The launcher generates and
-caches a shared RGB description without access to questions or answers, then
-runs text-input QA across the configured GPUs. Individual runs use
-`--observation-mode caption` or `caption_boxes` with `--captions` and
-`--media-manifest`.
-
-## Evaluate dynamic scenes
-
-Provide `tracks[].observations[]` with stable track IDs, timestamps in seconds, and per-frame boxes in a consistent coordinate frame. Use `--require-tracks` to validate that tracks are present.
+Evaluate object motion, temporal order, changing spatial relationships, and
+camera motion with STI-Bench, VLM4D, and DSI-Bench. Geometry inputs should contain
+`tracks[].observations[]` with stable IDs, timestamps in seconds, and per-frame
+boxes in a consistent coordinate frame.
 
 ```bash
 python eval_sti_bench.py --data /path/to/STI-Bench/qa.parquet \
   --geometry data/geometry/sti_bench.json --require-tracks \
   --model YOUR_SERVED_MODEL --base-url http://localhost:8000/v1 \
-  --output results/sti_bench.json --resume
+  --max-tokens 4096 --output results/sti_bench.json --resume
 
 python eval_vlm4d.py --split real_mc \
   --geometry data/geometry/vlm4d_real.json --require-tracks \
   --model YOUR_SERVED_MODEL --base-url http://localhost:8000/v1 \
-  --output results/vlm4d_real.json --resume
+  --max-tokens 4096 --output results/vlm4d_real.json --resume
 ```
 
-Run VLM4D's `real_mc` and `synthetic_mc` splits separately. DSI-Bench accepts `--split std` or `--split all`; supply matching geometry for each video augmentation. See [Scoring protocols](docs/metric_protocols.md) for metric definitions.
+Run VLM4D's `real_mc` and `synthetic_mc` splits separately. DSI-Bench supports
+`--split std` or `--split all`; each video augmentation needs matching geometry.
+`--require-tracks` checks track presence; it does not calculate tracking accuracy.
+Use the same sampled frames, timestamps, input mode, and reasoning settings
+when comparing encoders. See [scoring protocols](docs/metric_protocols.md) for
+the direct-choice and augmentation aggregation definitions.
 
-## Score saved predictions
-
-Offline scoring does not require a running model endpoint:
-
-```bash
-python eval_vsi_bench.py \
-  --data /path/to/vsibench_qa.json --dataset scannet \
-  --predictions /path/to/saved_responses.json \
-  --model YOUR_MODEL --output results/vsi_replay.json
-```
-
-VSI-Bench defaults to `--vsi-metric-protocol physbrain`. Select `--vsi-metric-protocol project` to use the legacy project scorer. Use the same protocol when comparing runs.
-
-## Run multiple benchmarks and models
-
-Copy the suite template and edit the endpoint, dataset paths, benchmarks, and geometry paths for each model:
-
-```bash
-cp configs/core_suite.example.json configs/local_core_suite.json
-```
-
-Paths in the configuration are relative to the repository root. Keep shared inference settings under `defaults`; put each model's geometry paths under `variants`.
-
-```bash
-# Preview commands.
-python -m scripts.run_suite --config configs/local_core_suite.json --mode plan
-
-# Validate inputs without calling the LLM.
-python -m scripts.run_suite --config configs/local_core_suite.json \
-  --mode check --output-dir results/preflight
-
-# Run in the background.
-bash scripts/run_background.sh logs/core_suite.log \
-  .venv/bin/python -u -m scripts.run_suite \
-  --config configs/local_core_suite.json \
-  --mode run --output-dir results/core_suite --resume
-
-tail -f logs/core_suite.log
-```
-
-The background launcher records a PID and redirects output to the selected log. Each suite job has its own result and log; `suite_index.json` records job exit codes.
-
-## Resume and inspect results
-
-Rerun the same command with `--resume` to reuse successful responses and retry incomplete requests. Keep the dataset, geometry, model, and inference settings unchanged when resuming. Use a new output path for a changed experiment or another dry run.
-
-Each evaluation writes:
-
-- `.json`: final scores, response records, and status counts.
-- `.jsonl`: responses saved incrementally during execution.
-- `.manifest.json`: configuration and input fingerprints used for resuming.
-
-Create a comparison CSV:
-
-```bash
-python -m scripts.summarize_results results/core_suite \
-  --output results/core_scores.csv
-```
-
-## Benchmark coverage
-
-The repository provides data and scoring adapters for 31 benchmarks. A suggested starting suite is included in [configs/core_suite.example.json](configs/core_suite.example.json).
-
-| Evaluation area | Benchmarks | Geometry inputs |
-| --- | --- | --- |
-| Static spatial perception | BLINK, CV-Bench, 3DSRBench | Object boxes, with view information where applicable |
-| Spatial and multi-view reasoning | EmbSpatial-Bench, Q-Spatial-Bench, MindCube, MMSI-Bench, ViewSpatial-Bench, VSI-Bench, SAT | Objects and camera/view relationships in a consistent coordinate frame |
-| Dynamic and temporal reasoning | STI-Bench, VLM4D, DSI-Bench | Timestamped object tracks and the corresponding camera poses |
-| Additional embodied tasks | Planning, pointing, affordance, and visual-trajectory benchmarks | Task-specific observations and output formats |
-
-Choose benchmarks and input representations according to the capabilities you want to measure. Object boxes describe position, size, and orientation; tasks involving appearance, fine-grained parts, contact, or robot state may need additional observations. Adapter availability does not imply that boxes alone contain all the information required by every question. Responses from external multimodal pipelines can be evaluated with `--predictions`.
-
-A video of a static scene can measure multi-view spatial understanding. To measure object dynamics, use time-resolved tracks instead of merging all frames into a single scene box. Keep benchmark splits, input provenance, and scoring protocols consistent across model comparisons; report dataset subsets separately from full-benchmark results.
-
-See the [benchmark matrix](docs/benchmark_matrix.md) for individual task coverage and [scoring protocols](docs/metric_protocols.md) for protocol-specific comparisons.
-
-## Try the included examples
-
-These examples use synthetic fixtures and do not require model weights:
+Try the included synthetic fixtures without model weights or a server:
 
 ```bash
 python eval_vlm4d.py --data examples/dynamic_qa.json \
@@ -234,11 +207,12 @@ python eval_vlm4d.py --data examples/dynamic_qa.json \
   --model synthetic_fixture --output results/example_replay.json
 ```
 
-To run the tests:
+For background execution across benchmarks and models, use
+[the suite config](configs/core_suite.example.json) and the
+[suite instructions](docs/usage.md#run-multiple-benchmarks-and-models).
+Each QA evaluation saves scores, an incremental response journal, and input
+fingerprints. Resume with unchanged inputs using `--resume`.
 
-```bash
-pip install -r requirements-dev.txt
-python -m pytest -q tests
-```
-
-[Geometry format](docs/geometry_schema.md) · [Scoring protocols](docs/metric_protocols.md) · [Third-party notices](THIRD_PARTY_NOTICES.md)
+[Geometry format](docs/geometry_schema.md) ·
+[Scoring protocols](docs/metric_protocols.md) ·
+[Third-party notices](THIRD_PARTY_NOTICES.md)

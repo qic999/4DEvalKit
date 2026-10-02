@@ -20,20 +20,20 @@ from core.runner import output_lock
 from scripts.media_inputs import read_frames
 
 
-def make_datapoint(images, frames, record, native):
+def make_datapoint(images, frames, record, native, *, resolution=1024, spatial_resolution=504):
     import torch
     from sam3.train.data.sam3_image_dataset import Datapoint, Image as ModelImage
     from inference_gt2d.open_vocab_slots import apply_open_vocab_slots
     from depth_anything_3.utils.io.input_processor import InputProcessor
-    resized = [im.resize((1024, 1024), Image.Resampling.LANCZOS if max(im.size)>1024 else Image.Resampling.BICUBIC)
+    resized = [im.resize((resolution, resolution), Image.Resampling.LANCZOS if max(im.size)>resolution else Image.Resampling.BICUBIC)
                for im in images]
-    spatial, _, _ = InputProcessor()([np.asarray(im) for im in resized], None, None, 504, 'upper_bound_resize')
+    spatial, _, _ = InputProcessor()([np.asarray(im) for im in resized], None, None, spatial_resolution, 'upper_bound_resize')
     mean = torch.tensor([.485,.456,.406]).view(3,1,1)
     std = torch.tensor([.229,.224,.225]).view(3,1,1)
     model_images = []
     for i,im in enumerate(resized):
         tensor = torch.from_numpy(np.array(im)).permute(2,0,1).float()/255
-        model_images.append(ModelImage(data=(tensor-mean)/std, objects=[], size=(1024,1024),
+        model_images.append(ModelImage(data=(tensor-mean)/std, objects=[], size=(resolution,resolution),
                                        spatial_data=spatial[i].float().contiguous()))
     count = len(images)
     # These identity matrices are loss-side placeholders required by native
@@ -138,8 +138,18 @@ def main():
     p.add_argument('--output', required=True)
     p.add_argument('--shard-index', type=int, default=0)
     p.add_argument('--num-shards', type=int, default=1)
+    p.add_argument('--resolution', type=int, default=1024, help='RGB encoder input size (518 for the WDS epoch-100 model)')
+    p.add_argument('--spatial-resolution', type=int, default=504)
+    p.add_argument('--model-image-size', type=int, default=1008, help='SAM internal grid size; must match checkpoint buffers')
+    p.add_argument('--limit', type=int, help='Bounded compatibility check only; complete evaluation omits this flag')
     p.add_argument('--wait-inputs', action='store_true', help='Consume proposal records as the detector writes them')
     args = p.parse_args()
+    if args.num_shards < 1 or not 0 <= args.shard_index < args.num_shards:
+        p.error('Require num-shards >= 1 and 0 <= shard-index < num-shards')
+    if min(args.resolution, args.spatial_resolution, args.model_image_size) <= 0:
+        p.error('Encoder resolutions must be positive')
+    if args.limit is not None and args.limit < 1:
+        p.error('--limit must be positive')
     sys.path.insert(0, str(Path(args.model_repo).resolve()))
     import torch
     from inference_gt2d import scene_inference as native
@@ -150,6 +160,8 @@ def main():
     out = Path(args.output).resolve()
     out.mkdir(parents=True, exist_ok=True)
     records = index['records'][args.shard_index::args.num_shards]
+    if args.limit is not None:
+        records = records[:args.limit]
     provenance = {'encoder': 'spatial_encoder_v2' if args.profile=='full' else 'spatial_encoder_v2_small',
         'checkpoint': source_signature(args.checkpoint), 'geometry_source': 'predicted',
         'proposal_source': 'groundingdino_fixed_vocabulary', 'label_source': 'detector',
@@ -159,12 +171,19 @@ def main():
         'limitations': 'First sampled frame initializes slots; later entrants may be missed. No cross-clip identity stitching.'}
     config = {'manifest': str(Path(args.manifest).resolve()), 'provenance': provenance,
               'shard_index': args.shard_index, 'num_shards': args.num_shards}
+    # Preserve the fingerprint of historical runs using the original defaults.
+    if (args.resolution, args.spatial_resolution, args.model_image_size) != (1024, 504, 1008) or args.limit is not None:
+        config.update(resolution=args.resolution, spatial_resolution=args.spatial_resolution,
+                      model_image_size=args.model_image_size, limit=args.limit)
+        provenance['encoder_input_sizes'] = {'rgb': args.resolution,
+            'spatial': args.spatial_resolution, 'sam_internal': args.model_image_size}
     with output_lock(out/'geometry.json'):
         if (out/'config.json').exists() and read_json(out/'config.json') != config:
             raise ValueError('Encoder configuration changed; use a fresh output')
         write_json(out/'config.json', config)
         model_args = SimpleNamespace(sam3_checkpoint=None, checkpoint=args.checkpoint, device='cuda',
-            model_profile=args.profile, spatial_resolution=504, multiplex_count=1, use_fa3=False,
+            model_profile=args.profile, spatial_resolution=args.spatial_resolution,
+            model_image_size=args.model_image_size, multiplex_count=1, use_fa3=False,
             use_act_checkpoint_multiplex_transformer=True, bbox_head_mode='reference_per_candidate',
             max_cond_frames_in_attn=-1, use_maskmem_tpos_v2=False, use_linear_no_obj_ptr=False)
         if args.profile == 'full':
@@ -207,7 +226,8 @@ def main():
                     result = {'scene': normalize_scene({'units':'m','coordinate_frame':'camera_x_right_y_down_z_forward',
                               'objects': [], 'provenance': provenance}), 'diagnostics': {'no_proposals': True}}
                 else:
-                    batch, payload = make_datapoint(images, frames, record, native)
+                    batch, payload = make_datapoint(images, frames, record, native,
+                        resolution=args.resolution, spatial_resolution=args.spatial_resolution)
                     if batch is None:
                         raise ValueError('All predicted proposals were rejected by native slot creation')
                     batch = copy_data_to_device(batch, torch.device('cuda'), non_blocking=True)

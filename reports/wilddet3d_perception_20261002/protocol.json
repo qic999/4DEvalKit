@@ -1,0 +1,180 @@
+{
+  "date": "2026-10-02",
+  "status": "complete",
+  "unique_images_per_model": 53341,
+  "protocol": "wilddet3d_gt2d_rgb_only_v1",
+  "evaluator_repository": "https://github.com/allenai/WildDet3D",
+  "evaluator_commit": "1b8aa52b6ff3f00d0ebfa07175efc0c0c440964a",
+  "encoder_inputs": [
+    "original RGB",
+    "GT 2D box prompts",
+    "fixed neutral foreground query"
+  ],
+  "gt_category_ids": "Scoring only; class names are not encoder inputs",
+  "withheld_from_encoder": [
+    "GT 3D boxes",
+    "GT depth",
+    "GT camera intrinsics",
+    "GT camera poses"
+  ],
+  "metric_units": "Raw AP/ODS are fractions in metrics JSON; comparison tables multiply by 100",
+  "native_box_to_meters": 2.5,
+  "native_size_xyz_to_wlh": [
+    2,
+    0,
+    1
+  ],
+  "quaternion_order": "WXYZ",
+  "selection": "Highest predicted IoU candidate per GT 2D prompt; no confidence threshold or GT 3D selection",
+  "aggregation": "Official Omni3DEvaluator joint accumulation; not a mean of subset AP",
+  "models": [
+    {
+      "name": "small_e100",
+      "profile": "lite",
+      "resolution": 518,
+      "spatial-resolution": 518,
+      "model-image-size": 518,
+      "checkpoint_filename": "checkpoint.pt",
+      "checkpoint_bytes": 2374762212,
+      "checkpoint_sha256": "9cfbab0c02e109a15d6fd19cc51791f1bb75d85f8e3aaf52861013d3ef5355b5",
+      "model_code_commit": "6fc36dcb32e48664f7923530c7e92e83527b9a99",
+      "model_code_has_local_overlays": true,
+      "checkpoint_source": "https://huggingface.co/Ju-Projects/Spatial-Models/tree/140acdba93481834b8a8e6f790e00761f4e5fc96/se-small-lite-wds518-8xh100-e100"
+    },
+    {
+      "name": "full_e64",
+      "profile": "full",
+      "resolution": 1024,
+      "spatial-resolution": 504,
+      "model-image-size": 1008,
+      "checkpoint_filename": "checkpoint_64.pt",
+      "checkpoint_bytes": 15778620199,
+      "checkpoint_sha256": "680dddd42866a8944729567b9f944a2bb9f6c537207f22ba93ffe356d58a3d48",
+      "model_code_commit": "19389b423b6f3b33c0c18b632ee226ec213edf59",
+      "model_code_has_local_overlays": true
+    },
+    {
+      "name": "small_e34",
+      "profile": "lite",
+      "resolution": 1024,
+      "spatial-resolution": 504,
+      "model-image-size": 1008,
+      "checkpoint_filename": "checkpoint.pt",
+      "checkpoint_bytes": 2378627172,
+      "checkpoint_sha256": "b9401712a189f6ed5c29840ccaa8f4b5fa915cc772c9418723539a1439f3a041",
+      "model_code_commit": "19389b423b6f3b33c0c18b632ee226ec213edf59",
+      "model_code_has_local_overlays": true
+    }
+  ],
+  "datasets": {
+    "stereo4d": {
+      "images": 383,
+      "prompts": 1845,
+      "annotation_filename": "Stereo4D_val.json",
+      "annotation_sha256": "3411417d34fb3d3cf58993e47728837bb7b36cdc522f2f065507275e554bae81",
+      "prompt_min_height": 0.0625
+    },
+    "scannet": {
+      "images": 6240,
+      "prompts": 4971,
+      "annotation_filename": "f34958747eb7aa33517ec5ece282350db2ad62e2c7a3f66837eae3cc7f5478a7",
+      "annotation_sha256": "f34958747eb7aa33517ec5ece282350db2ad62e2c7a3f66837eae3cc7f5478a7",
+      "prompt_min_height": 0.0625
+    },
+    "argoverse": {
+      "images": 4806,
+      "prompts": 8391,
+      "annotation_filename": "9a43c235ffbe6f0d200ce735b1b486236905bf8cb8aeb5e506a29aa95000d7c6",
+      "annotation_sha256": "9a43c235ffbe6f0d200ce735b1b486236905bf8cb8aeb5e506a29aa95000d7c6",
+      "prompt_min_height": 0.0625
+    },
+    "omni3d_KITTI": {
+      "images": 3769,
+      "prompts": 12371,
+      "annotation_filename": "KITTI_test.json",
+      "annotation_sha256": "2ec895083787065c81ba35f1b74cebb5c3b8f3f9c0b6c809d79cfcee7e637ce2",
+      "prompt_min_height": 0.0625
+    },
+    "omni3d_nuScenes": {
+      "images": 6019,
+      "prompts": 20016,
+      "annotation_filename": "nuScenes_test.json",
+      "annotation_sha256": "0067b029e69508523ec6ba803c49a29cfe065057ca8bcc076d5a29f07a59af28",
+      "prompt_min_height": 0.0625
+    },
+    "omni3d_SUNRGBD": {
+      "images": 5050,
+      "prompts": 14454,
+      "annotation_filename": "SUNRGBD_test.json",
+      "annotation_sha256": "8ee65847386123d65d3bc1e4da645be0c717cbf7448b6ed944418ce88e4930db",
+      "prompt_min_height": 0.0625
+    },
+    "omni3d_Hypersim": {
+      "images": 7690,
+      "prompts": 64071,
+      "annotation_filename": "Hypersim_test.json",
+      "annotation_sha256": "6779ee21b66e5b37310ca4b95217adc16e55c6c93c5c28517b0733700b6aad02",
+      "prompt_min_height": 0.0625
+    },
+    "omni3d_ARKitScenes": {
+      "images": 7610,
+      "prompts": 10148,
+      "annotation_filename": "ARKitScenes_test.json",
+      "annotation_sha256": "82b45499c755bc9cd18266404691d4b41a3b6fdfdbfc94d378698fdb318d2e7f",
+      "prompt_min_height": 0.0625
+    },
+    "omni3d_Objectron": {
+      "images": 9314,
+      "prompts": 10207,
+      "annotation_filename": "Objectron_test.json",
+      "annotation_sha256": "8d93ac1357270313f32d7c4eaf8ac79f48adeb14b30e43dbc78b8fc0bd5fb0c5",
+      "prompt_min_height": 0.0625
+    },
+    "in_the_wild": {
+      "images": 2460,
+      "prompts": 9238,
+      "annotation_filename": "InTheWild_v3_val_subset2460.json",
+      "annotation_sha256": "1617715e32e557e01c93f5bcef9bd7f6c7d4e1696fef1c6d3a8605700ff45229",
+      "prompt_min_height": 0.0
+    }
+  },
+  "in_the_wild_subset": {
+    "type": "explicit_image_subset",
+    "original_images": 2470,
+    "evaluated_images": 2460,
+    "excluded_images": 10,
+    "excluded_annotations": 51,
+    "excluded_image_ids": [
+      1803,
+      1834,
+      1978,
+      2080,
+      2137,
+      2211,
+      2351,
+      2360,
+      2370,
+      2381
+    ],
+    "excluded_file_paths": [
+      "images/obj365_val/obj365_val_000000195764.jpg",
+      "images/obj365_val/obj365_val_000000216744.jpg",
+      "images/obj365_val/obj365_val_000000351659.jpg",
+      "images/obj365_val/obj365_val_000000464372.jpg",
+      "images/obj365_val/obj365_val_000000513160.jpg",
+      "images/obj365_val/obj365_val_000000571701.jpg",
+      "images/obj365_val/obj365_val_000000651431.jpg",
+      "images/obj365_val/obj365_val_000000657563.jpg",
+      "images/obj365_val/obj365_val_000000662293.jpg",
+      "images/obj365_val/obj365_val_000000669695.jpg"
+    ]
+  },
+  "limitations": [
+    "Box-conditioned regression, not open-vocabulary object discovery",
+    "Stereo4D scores independent frames, not temporal tracking",
+    "Paper ScanNet/Argoverse Table 5 does not explicitly label prompt mode",
+    "Model training data and native encoder resolutions differ",
+    "The WildDet3D-Bench paper reference uses the full split; these results exclude ten unavailable images",
+    "Cross-source training-image overlap has not been fully audited"
+  ]
+}

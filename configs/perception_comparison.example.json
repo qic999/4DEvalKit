@@ -1,0 +1,23 @@
+{
+  "models": [
+    {
+      "name": "full_e64",
+      "label": "Full e64"
+    },
+    {
+      "name": "small_e34",
+      "label": "Old Small e34"
+    },
+    {
+      "name": "small_e100",
+      "label": "Small WDS518 e100"
+    }
+  ],
+  "status_files": [
+    "status.json"
+  ],
+  "notes": [
+    "Old Small e34 is the original epoch-34 checkpoint used in the earlier reasoning evaluations. Its perception results are measured independently here.",
+    "Native RGB / spatial / internal resolutions: Full e64 and Old Small e34 use 1024 / 504 / 1008; Small WDS518 e100 uses 518 / 518 / 518. All models use the same dataset manifests and scoring protocol."
+  ]
+}

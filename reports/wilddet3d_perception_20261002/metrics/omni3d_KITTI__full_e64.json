@@ -1,0 +1,23 @@
+{
+  "benchmark": "omni3d_KITTI",
+  "images": 3769,
+  "predictions": 12371,
+  "upstream_commit": "1b8aa52b6ff3f00d0ebfa07175efc0c0c440964a",
+  "protocol": "wilddet3d_gt2d_rgb_only_v1",
+  "metric_units": "Official raw values; AP/ODS multiplied by 100 in summary tables",
+  "metrics": {
+    "bbox": {
+      "AP": 5.317203076885929e-07,
+      "AP15": 1.6378809096790573e-06,
+      "AP25": 0.0,
+      "AP50": 0.0,
+      "APn": 5.332294828879342e-07,
+      "APm": 0.0,
+      "APf": 0.0,
+      "ASE": 1.0,
+      "AOE": 1.0,
+      "AOE_Sym": 1.0,
+      "AOE_Canonical": 1.0
+    }
+  }
+}

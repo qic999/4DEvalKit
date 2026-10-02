@@ -1,0 +1,38 @@
+{
+  "benchmark": "scannet",
+  "images": 6240,
+  "predictions": 4971,
+  "upstream_commit": "1b8aa52b6ff3f00d0ebfa07175efc0c0c440964a",
+  "protocol": "wilddet3d_gt2d_rgb_only_v1",
+  "metric_units": "Official raw values; AP/ODS multiplied by 100 in summary tables",
+  "metrics": {
+    "dist": {
+      "AP": 0.6180280573781229,
+      "ATE": 0.6603629935622831,
+      "ASE": 0.7032421723580259,
+      "AOE": 0.6491781005642462,
+      "AOE_Sym": 0.6561685713929443,
+      "AOE_Canonical": 0.4459762169729885,
+      "ODS": 0.47355015094163555,
+      "ODS_Sym": 0.4723850724701859,
+      "ODS_Canonical": 0.5074171315401785,
+      "ODS_Canonical_Base": 0.529149964177025,
+      "ODS_Canonical_Novel": 0.39875296835594704
+    },
+    "bbox": {
+      "AP": 0.25283642801505923,
+      "AP15": 0.3771209039614352,
+      "AP25": 0.25774991441459716,
+      "AP50": 0.03753751561946845,
+      "APn": 0.25283642801505923,
+      "APm": -1.0,
+      "APf": -1.0,
+      "AP_Base": 0.27246220005126615,
+      "AP_Novel": 0.15470756783402462,
+      "ASE": 0.8251704821563959,
+      "AOE": 0.8331465454490339,
+      "AOE_Sym": 0.8284792237856435,
+      "AOE_Canonical": 0.722548378921413
+    }
+  }
+}

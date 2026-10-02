@@ -1,0 +1,26 @@
+{
+  "benchmark": "omni3d_nuScenes",
+  "images": 6019,
+  "predictions": 20016,
+  "upstream_commit": "1b8aa52b6ff3f00d0ebfa07175efc0c0c440964a",
+  "protocol": "wilddet3d_gt2d_rgb_only_v1",
+  "metric_units": "Official raw values; AP/ODS multiplied by 100 in summary tables",
+  "metrics": {
+    "bbox": {
+      "AP": 0.00014857107615666692,
+      "AP15": 0.00018834781325588077,
+      "AP25": 2.9830004973381865e-05,
+      "AP50": 2.3915435021763045e-05,
+      "APn": 0.0005379442083845794,
+      "APm": 3.024607840443009e-06,
+      "APf": 0.0,
+      "ASE": 0.9999363534401977,
+      "AOE": 0.9999188124670495,
+      "AOE_Sym": 0.9998595329226805,
+      "AOE_Canonical": 0.9998503198590009
+    }
+  },
+  "evaluation_scope": {
+    "type": "full_split"
+  }
+}

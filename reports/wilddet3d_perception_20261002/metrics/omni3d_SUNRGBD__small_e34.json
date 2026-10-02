@@ -1,0 +1,26 @@
+{
+  "benchmark": "omni3d_SUNRGBD",
+  "images": 5050,
+  "predictions": 14454,
+  "upstream_commit": "1b8aa52b6ff3f00d0ebfa07175efc0c0c440964a",
+  "protocol": "wilddet3d_gt2d_rgb_only_v1",
+  "metric_units": "Official raw values; AP/ODS multiplied by 100 in summary tables",
+  "metrics": {
+    "bbox": {
+      "AP": 0.12746999968655268,
+      "AP15": 0.206498750941533,
+      "AP25": 0.11130322651964783,
+      "AP50": 0.005241129264694925,
+      "APn": 0.12747002813890004,
+      "APm": -1.0,
+      "APf": -1.0,
+      "ASE": 0.8947304475730165,
+      "AOE": 0.8313681015079333,
+      "AOE_Sym": 0.861533974480237,
+      "AOE_Canonical": 0.8463315570592995
+    }
+  },
+  "evaluation_scope": {
+    "type": "full_split"
+  }
+}

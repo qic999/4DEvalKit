@@ -1,0 +1,23 @@
+{
+  "benchmark": "omni3d_ARKitScenes",
+  "images": 7610,
+  "predictions": 10148,
+  "upstream_commit": "1b8aa52b6ff3f00d0ebfa07175efc0c0c440964a",
+  "protocol": "wilddet3d_gt2d_rgb_only_v1",
+  "metric_units": "Official raw values; AP/ODS multiplied by 100 in summary tables",
+  "metrics": {
+    "bbox": {
+      "AP": 0.4366083491002154,
+      "AP15": 0.6327356354213556,
+      "AP25": 0.4780757318355132,
+      "AP50": 0.09807663802519505,
+      "APn": 0.4366094390687268,
+      "APm": 0.0,
+      "APf": -1.0,
+      "ASE": 0.7114198557434723,
+      "AOE": 0.7159133895964087,
+      "AOE_Sym": 0.870313935606603,
+      "AOE_Canonical": 0.6098752647334534
+    }
+  }
+}

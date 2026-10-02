@@ -1,0 +1,28 @@
+{
+  "variant": "small_lite_wds518_e100",
+  "profile": "lite",
+  "model_repo": "/path/to/pinned/model/repository",
+  "checkpoint": "/path/to/se-small-lite-wds518-8xh100-e100/checkpoint.pt",
+  "encoder_python": "/path/to/encoder/environment/bin/python",
+  "resolution": 518,
+  "spatial_resolution": 518,
+  "model_image_size": 518,
+  "llm_python": "/path/to/reasoner/environment/bin/python",
+  "llm_model": "/path/to/Qwen3.5-9B",
+  "llm_name": "qwen35_9b",
+  "gpus": [0, 1, 2, 3, 4, 5, 6, 7],
+  "base_port": 23700,
+  "max_image_pixels": 262144,
+  "qa_concurrency": 32,
+  "jobs": [
+    {
+      "name": "cv_bench_test",
+      "benchmark": "CV-Bench",
+      "split": "test",
+      "data": "/path/to/prepared/cv_bench/source",
+      "manifest": "/path/to/prepared/cv_bench/test/manifest.json",
+      "proposals": "/path/to/previous/run/cv_bench_test/proposals",
+      "captions": "/path/to/complete/caption/run/cv_bench_test/captions.json"
+    }
+  ]
+}

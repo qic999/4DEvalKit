@@ -1,0 +1,31 @@
+{
+  "benchmark": "omni3d_overall",
+  "images": 39452,
+  "upstream_commit": "1b8aa52b6ff3f00d0ebfa07175efc0c0c440964a",
+  "aggregation": "Official Omni3DEvaluator joint category/image accumulation",
+  "metrics": {
+    "bbox": {
+      "AP_KITTI_test": 0.0009581760064540578,
+      "AP_nuScenes_test": 0.00014857107615666692,
+      "AP_SUNRGBD_test": 0.12746999968655268,
+      "AP_Hypersim_test": 0.08679800452442117,
+      "AP_ARKitScenes_test": 0.36467122284338765,
+      "AP_Objectron_test": 0.08921593680887391,
+      "AP": 0.09795782227575399,
+      "AP15": 0.1545799570325549,
+      "AP25": 0.09559426901165992,
+      "AP50": 0.007614834535156328,
+      "APn": 0.10343949809055433,
+      "APm": 0.009760722816790728,
+      "APf": 0.0,
+      "ASE": 0.9196819278855165,
+      "AOE": 0.8823730948090809,
+      "AOE_Sym": 0.9000677130039646,
+      "AOE_Canonical": 0.8873910924793141,
+      "ODS_Sym": null,
+      "ODS_Canonical": null,
+      "Omni3D_Out": 0.019102691677376805,
+      "Omni3D_In": 0.12883631583635494
+    }
+  }
+}

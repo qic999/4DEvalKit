@@ -1,0 +1,26 @@
+{
+  "benchmark": "omni3d_Objectron",
+  "images": 9314,
+  "predictions": 10207,
+  "upstream_commit": "1b8aa52b6ff3f00d0ebfa07175efc0c0c440964a",
+  "protocol": "wilddet3d_gt2d_rgb_only_v1",
+  "metric_units": "Official raw values; AP/ODS multiplied by 100 in summary tables",
+  "metrics": {
+    "bbox": {
+      "AP": 0.08921593680887391,
+      "AP15": 0.15099263566784898,
+      "AP25": 0.09373508058080292,
+      "AP50": 0.008395682166423585,
+      "APn": 0.08921593680887391,
+      "APm": -1.0,
+      "APf": -1.0,
+      "ASE": 0.9375816282055005,
+      "AOE": 0.9335929976409825,
+      "AOE_Sym": 0.9398296191563951,
+      "AOE_Canonical": 0.9189678410593848
+    }
+  },
+  "evaluation_scope": {
+    "type": "full_split"
+  }
+}

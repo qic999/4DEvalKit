@@ -1,0 +1,34 @@
+dataset,model,metric,score_100,images,paper_score_100,paper_protocol,evaluation_scope,evaluated_images,original_images,excluded_images,state,source
+stereo4d,full_e64,AP (distance),7.299015864916765,383,7.5,"Box prompt, Table 6",full_split,383,383,0,scored,metrics/stereo4d__full_e64.json
+stereo4d,small_e34,AP (distance),5.3087596489043145,383,7.5,"Box prompt, Table 6",full_split,383,383,0,scored,metrics/stereo4d__small_e34.json
+stereo4d,small_e100,AP (distance),4.959439495288766,383,7.5,"Box prompt, Table 6",full_split,383,383,0,scored,metrics/stereo4d__small_e100.json
+scannet,full_e64,ODS (canonical),50.74171315401785,6240,48.9,Canonical rotation per section 4.1; Table 5 does not explicitly label prompt mode,full_split,6240,6240,0,scored,metrics/scannet__full_e64.json
+scannet,small_e34,ODS (canonical),43.8679771062189,6240,48.9,Canonical rotation per section 4.1; Table 5 does not explicitly label prompt mode,full_split,6240,6240,0,scored,metrics/scannet__small_e34.json
+scannet,small_e100,ODS (canonical),47.74987933078205,6240,48.9,Canonical rotation per section 4.1; Table 5 does not explicitly label prompt mode,full_split,6240,6240,0,scored,metrics/scannet__small_e100.json
+argoverse,full_e64,ODS (canonical),0.0,4806,40.3,Canonical rotation per section 4.1; Table 5 does not explicitly label prompt mode,full_split,4806,4806,0,scored,metrics/argoverse__full_e64.json
+argoverse,small_e34,ODS (canonical),0.05511137564785115,4806,40.3,Canonical rotation per section 4.1; Table 5 does not explicitly label prompt mode,full_split,4806,4806,0,scored,metrics/argoverse__small_e34.json
+argoverse,small_e100,ODS (canonical),14.931214942801448,4806,40.3,Canonical rotation per section 4.1; Table 5 does not explicitly label prompt mode,full_split,4806,4806,0,scored,metrics/argoverse__small_e100.json
+omni3d_KITTI,full_e64,AP (IoU),5.317203076885929e-05,3769,44.3,"Box prompt, Table 4",full_split,3769,3769,0,scored,metrics/omni3d_KITTI__full_e64.json
+omni3d_KITTI,small_e34,AP (IoU),0.09581760064540579,3769,44.3,"Box prompt, Table 4",full_split,3769,3769,0,scored,metrics/omni3d_KITTI__small_e34.json
+omni3d_KITTI,small_e100,AP (IoU),8.837268932907662,3769,44.3,"Box prompt, Table 4",full_split,3769,3769,0,scored,metrics/omni3d_KITTI__small_e100.json
+omni3d_nuScenes,full_e64,AP (IoU),4.662295793742827e-05,6019,35.3,"Box prompt, Table 4",full_split,6019,6019,0,scored,metrics/omni3d_nuScenes__full_e64.json
+omni3d_nuScenes,small_e34,AP (IoU),0.014857107615666693,6019,35.3,"Box prompt, Table 4",full_split,6019,6019,0,scored,metrics/omni3d_nuScenes__small_e34.json
+omni3d_nuScenes,small_e100,AP (IoU),9.044845472980477,6019,35.3,"Box prompt, Table 4",full_split,6019,6019,0,scored,metrics/omni3d_nuScenes__small_e100.json
+omni3d_SUNRGBD,full_e64,AP (IoU),19.96114774384929,5050,43.1,"Box prompt, Table 4",full_split,5050,5050,0,scored,metrics/omni3d_SUNRGBD__full_e64.json
+omni3d_SUNRGBD,small_e34,AP (IoU),12.746999968655267,5050,43.1,"Box prompt, Table 4",full_split,5050,5050,0,scored,metrics/omni3d_SUNRGBD__small_e34.json
+omni3d_SUNRGBD,small_e100,AP (IoU),24.020307868302222,5050,43.1,"Box prompt, Table 4",full_split,5050,5050,0,scored,metrics/omni3d_SUNRGBD__small_e100.json
+omni3d_Hypersim,full_e64,AP (IoU),10.704086446586686,7690,17.3,"Box prompt, Table 4",full_split,7690,7690,0,scored,metrics/omni3d_Hypersim__full_e64.json
+omni3d_Hypersim,small_e34,AP (IoU),8.679800452442118,7690,17.3,"Box prompt, Table 4",full_split,7690,7690,0,scored,metrics/omni3d_Hypersim__small_e34.json
+omni3d_Hypersim,small_e100,AP (IoU),10.505535300864075,7690,17.3,"Box prompt, Table 4",full_split,7690,7690,0,scored,metrics/omni3d_Hypersim__small_e100.json
+omni3d_ARKitScenes,full_e64,AP (IoU),45.496436199957316,7610,66.6,"Box prompt, Table 4",full_split,7610,7610,0,scored,metrics/omni3d_ARKitScenes__full_e64.json
+omni3d_ARKitScenes,small_e34,AP (IoU),36.467122284338764,7610,66.6,"Box prompt, Table 4",full_split,7610,7610,0,scored,metrics/omni3d_ARKitScenes__small_e34.json
+omni3d_ARKitScenes,small_e100,AP (IoU),43.66083491002154,7610,66.6,"Box prompt, Table 4",full_split,7610,7610,0,scored,metrics/omni3d_ARKitScenes__small_e100.json
+omni3d_Objectron,full_e64,AP (IoU),10.340790693069286,9314,60.8,"Box prompt, Table 4",full_split,9314,9314,0,scored,metrics/omni3d_Objectron__full_e64.json
+omni3d_Objectron,small_e34,AP (IoU),8.92159368088739,9314,60.8,"Box prompt, Table 4",full_split,9314,9314,0,scored,metrics/omni3d_Objectron__small_e34.json
+omni3d_Objectron,small_e100,AP (IoU),24.912954217239516,9314,60.8,"Box prompt, Table 4",full_split,9314,9314,0,scored,metrics/omni3d_Objectron__small_e100.json
+omni3d_overall,full_e64,AP (IoU),12.616165046088025,39452,36.4,"Box prompt, joint Omni3D AP, Table 4",full_split,39452,39452,0,scored,metrics/omni3d_overall__full_e64.json
+omni3d_overall,small_e34,AP (IoU),9.7957822275754,39452,36.4,"Box prompt, joint Omni3D AP, Table 4",full_split,39452,39452,0,scored,metrics/omni3d_overall__small_e34.json
+omni3d_overall,small_e100,AP (IoU),17.170926704277253,39452,36.4,"Box prompt, joint Omni3D AP, Table 4",full_split,39452,39452,0,scored,metrics/omni3d_overall__small_e100.json
+in_the_wild,full_e64,AP (distance),6.654455294362214,2460,24.8,"Box prompt, full-data model, Table 3",explicit_image_subset,2460,2470,10,scored,metrics/in_the_wild__full_e64.json
+in_the_wild,small_e34,AP (distance),7.722067623235776,2460,24.8,"Box prompt, full-data model, Table 3",explicit_image_subset,2460,2470,10,scored,metrics/in_the_wild__small_e34.json
+in_the_wild,small_e100,AP (distance),11.626190603376363,2460,24.8,"Box prompt, full-data model, Table 3",explicit_image_subset,2460,2470,10,scored,metrics/in_the_wild__small_e100.json

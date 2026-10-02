@@ -1,0 +1,107 @@
+{
+  "output": "results/perception",
+  "encoder_python": "/path/to/encoder/env/bin/python",
+  "scorer_python": "/path/to/wilddet3d/env/bin/python",
+  "upstream": "external/WildDet3D",
+  "gpus": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+  ],
+  "num_shards": 4,
+  "datasets": [
+    {
+      "name": "stereo4d",
+      "manifest": "results/perception/stereo4d_manifest.json"
+    },
+    {
+      "name": "scannet",
+      "manifest": "results/perception/scannet_manifest.json"
+    },
+    {
+      "name": "argoverse",
+      "manifest": "results/perception/argoverse_manifest.json"
+    },
+    {
+      "name": "omni3d_KITTI",
+      "manifest": "results/perception/omni3d_KITTI_manifest.json",
+      "metrics": [
+        "bbox"
+      ]
+    },
+    {
+      "name": "omni3d_SUNRGBD",
+      "manifest": "results/perception/omni3d_SUNRGBD_manifest.json",
+      "metrics": [
+        "bbox"
+      ]
+    },
+    {
+      "name": "omni3d_ARKitScenes",
+      "manifest": "results/perception/omni3d_ARKitScenes_manifest.json",
+      "metrics": [
+        "bbox"
+      ]
+    },
+    {
+      "name": "omni3d_Hypersim",
+      "manifest": "results/perception/omni3d_Hypersim_manifest.json",
+      "metrics": [
+        "bbox"
+      ]
+    },
+    {
+      "name": "omni3d_nuScenes",
+      "manifest": "results/perception/omni3d_nuScenes_manifest.json",
+      "metrics": [
+        "bbox"
+      ]
+    },
+    {
+      "name": "omni3d_Objectron",
+      "manifest": "results/perception/omni3d_Objectron_manifest.json",
+      "metrics": [
+        "bbox"
+      ]
+    },
+    {
+      "name": "in_the_wild",
+      "manifest": "results/perception/in_the_wild_manifest.json"
+    }
+  ],
+  "models": [
+    {
+      "name": "full_e64",
+      "model-repo": "/path/to/model/repository",
+      "checkpoint": "/path/to/full/checkpoint_64.pt",
+      "profile": "full",
+      "resolution": 1024,
+      "spatial-resolution": 504,
+      "model-image-size": 1008
+    },
+    {
+      "name": "small_e34",
+      "model-repo": "/path/to/model/repository",
+      "checkpoint": "/path/to/old_small/checkpoint.pt",
+      "profile": "lite",
+      "resolution": 1024,
+      "spatial-resolution": 504,
+      "model-image-size": 1008
+    },
+    {
+      "name": "small_e100",
+      "model-repo": "/path/to/model/repository",
+      "checkpoint": "/path/to/se-small-lite-wds518-8xh100-e100/checkpoint.pt",
+      "profile": "lite",
+      "resolution": 518,
+      "spatial-resolution": 518,
+      "model-image-size": 518
+    }
+  ],
+  "max_existing_gpu_memory_mb": 500
+}

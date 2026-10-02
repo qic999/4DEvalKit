@@ -1,0 +1,23 @@
+{
+  "benchmark": "omni3d_Hypersim",
+  "images": 7690,
+  "predictions": 64071,
+  "upstream_commit": "1b8aa52b6ff3f00d0ebfa07175efc0c0c440964a",
+  "protocol": "wilddet3d_gt2d_rgb_only_v1",
+  "metric_units": "Official raw values; AP/ODS multiplied by 100 in summary tables",
+  "metrics": {
+    "bbox": {
+      "AP": 0.10704086446586686,
+      "AP15": 0.1651938114574721,
+      "AP25": 0.12004289669982067,
+      "AP50": 0.005784203721463778,
+      "APn": 0.11298588768129461,
+      "APm": 0.018065649799018643,
+      "APf": 0.0,
+      "ASE": 0.933870322955076,
+      "AOE": 0.9116442236769683,
+      "AOE_Sym": 0.9385216596966717,
+      "AOE_Canonical": 0.8772316753492876
+    }
+  }
+}

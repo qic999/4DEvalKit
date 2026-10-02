@@ -1,0 +1,70 @@
+{
+  "benchmark": "in_the_wild",
+  "images": 2460,
+  "predictions": 9238,
+  "upstream_commit": "1b8aa52b6ff3f00d0ebfa07175efc0c0c440964a",
+  "protocol": "wilddet3d_gt2d_rgb_only_v1",
+  "metric_units": "Official raw values; AP/ODS multiplied by 100 in summary tables",
+  "metrics": {
+    "dist": {
+      "AP": 0.07722067623235776,
+      "ATE": 0.9583929084398332,
+      "ASE": 0.9581440158985193,
+      "AOE": 0.9425843224270724,
+      "AOE_Sym": 0.9529997275396747,
+      "AOE_Canonical": 0.932337030660619,
+      "ODS": 0.06209013032194142,
+      "ODS_Sym": 0.060354229469841036,
+      "ODS_Canonical": 0.06379801228301697,
+      "APr": 0.101567635008606,
+      "APc": 0.07348194415134282,
+      "APf": 0.057813261063383616
+    },
+    "bbox": {
+      "AP": 0.030684796655632573,
+      "AP15": 0.047196070996271544,
+      "AP25": 0.023510610744217668,
+      "AP50": 0.0030009186237425814,
+      "APn": 0.03866604009694179,
+      "APm": 0.0007037155328436067,
+      "APf": 0.02349396297690903,
+      "ASE": 0.9796898221694162,
+      "AOE": 0.9752918954612669,
+      "AOE_Sym": 0.9802486732945906,
+      "AOE_Canonical": 0.9717001115795331,
+      "APr": 0.045779275171897164,
+      "APc": 0.026423395109100627
+    }
+  },
+  "evaluation_scope": {
+    "type": "explicit_image_subset",
+    "original_images": 2470,
+    "evaluated_images": 2460,
+    "excluded_images": 10,
+    "excluded_annotations": 51,
+    "excluded_image_ids": [
+      1803,
+      1834,
+      1978,
+      2080,
+      2137,
+      2211,
+      2351,
+      2360,
+      2370,
+      2381
+    ],
+    "excluded_file_paths": [
+      "images/obj365_val/obj365_val_000000195764.jpg",
+      "images/obj365_val/obj365_val_000000216744.jpg",
+      "images/obj365_val/obj365_val_000000351659.jpg",
+      "images/obj365_val/obj365_val_000000464372.jpg",
+      "images/obj365_val/obj365_val_000000513160.jpg",
+      "images/obj365_val/obj365_val_000000571701.jpg",
+      "images/obj365_val/obj365_val_000000651431.jpg",
+      "images/obj365_val/obj365_val_000000657563.jpg",
+      "images/obj365_val/obj365_val_000000662293.jpg",
+      "images/obj365_val/obj365_val_000000669695.jpg"
+    ]
+  }
+}

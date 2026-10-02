@@ -16,6 +16,12 @@ included in this source tree.
 The project-local VSI scorer is preserved separately, with source identity in
 [docs/project_metric_source.json](docs/project_metric_source.json).
 
+The direct perception adapters load the external
+[WildDet3D evaluator](https://github.com/allenai/WildDet3D) at revision
+`1b8aa52b6ff3f00d0ebfa07175efc0c0c440964a`. The evaluator is installed separately;
+its model code and datasets are not vendored here. Dataset and evaluation
+instructions are in [the perception guide](docs/perception_evaluation.md).
+
 Dynamic annotation sources:
 
 - [STI-Bench](https://mint-sjtu.github.io/STI-Bench.io/), [dataset](https://huggingface.co/datasets/MINT-SJTU/STI-Bench)
