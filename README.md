@@ -15,6 +15,10 @@ This table covers the four workflows below. Additional embodied planning,
 pointing, affordance, and visual-trace adapters are listed in the
 [full benchmark matrix](docs/benchmark_matrix.md).
 
+For additional temporal evaluation coverage, see the
+[4D benchmark survey and integration priorities](docs/4d_benchmark_survey.md).
+It distinguishes proposed additions from the implemented workflows in this table.
+
 Use Python 3.10 or newer for the toolkit and run commands from the repository root:
 
 ```bash
@@ -180,6 +184,10 @@ timestamped boxes, stable object slots, and predicted camera poses for downstrea
 reasoning. Exporting tracks is distinct from evaluating them against temporal
 ground truth. Its first-frame proposal strategy can miss objects entering later.
 
+Candidate temporal evaluations include ADT, HOI4D, HOT3D, and nuScenes Tracking.
+See [4D perception candidates](docs/4d_benchmark_survey.md#4d-perception-candidates)
+for ground-truth availability, metrics, and required protocol changes.
+
 ## 4D Reasoning
 
 Evaluate object motion, temporal order, changing spatial relationships, and
@@ -205,6 +213,11 @@ Run VLM4D's `real_mc` and `synthetic_mc` splits separately. DSI-Bench supports
 Use the same sampled frames, timestamps, input mode, and reasoning settings
 when comparing encoders. See [scoring protocols](docs/metric_protocols.md) for
 the direct-choice and augmentation aggregation definitions.
+
+Candidate additions include MotionBench, CLEVRER, MLLM4D-Bench, MVVBench,
+4D-Bench, V-STaR, TempCompass, and Physion. See
+[4D reasoning candidates](docs/4d_benchmark_survey.md#4d-reasoning-candidates)
+for release status, scope, and integration requirements; these are not yet adapters.
 
 Try the included synthetic fixtures without model weights or a server:
 
