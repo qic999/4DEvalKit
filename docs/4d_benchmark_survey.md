@@ -38,9 +38,9 @@ pose challenge or leaderboard.
 
 | Candidate | What it adds | Release and scoring status | Fit and priority |
 |---|---|---|---|
-| **Aria Digital Twin (ADT)** | Real egocentric sequences with object poses, boxes, camera trajectories, and occlusions. | Public data and loading tools. Its historical scene-generalization and few-shot 6DoF tracking challenges are marked closed. Start with a documented held-out **derived box/trajectory protocol**. | **First batch**, after a training-overlap audit. Strong fit for object centers, sizes, poses, and camera/object motion separation. Handle lens distortion and timestamps. [Data format](https://facebookresearch.github.io/projectaria_tools/docs/open_datasets/aria_digital_twin_dataset/data_format), [challenge status](https://facebookresearch.github.io/projectaria_tools/docs/open_datasets/aria_digital_twin_dataset/adt_challenges). |
+| **Aria Digital Twin (ADT)** | Real egocentric sequences with object poses, boxes, camera trajectories, and occlusions. | Public data and loading tools. Its historical scene-generalization and few-shot 6DoF tracking challenges are marked closed. Start with a documented held-out **derived box/trajectory protocol**. | **First batch**, using the [documented training sequence exclusions](adt_hoi4d_split_protocol.md). Strong fit for object centers, sizes, poses, and camera/object motion separation. Handle lens distortion and timestamps. [Data format](https://facebookresearch.github.io/projectaria_tools/docs/open_datasets/aria_digital_twin_dataset/data_format), [challenge status](https://facebookresearch.github.io/projectaria_tools/docs/open_datasets/aria_digital_twin_dataset/adt_challenges). |
 | **HOI4D Object Tracking** | Manipulated objects, rotation, occlusion, and category-level pose tracking. | Dataset and challenge preprocessing are public. The paper reports translation/rotation errors and 5-degree/5-cm success; the challenge repository documents prediction submission rather than a complete local scorer. | **First batch for rigid-object box trajectories**. Official pose comparison needs object-frame alignment and matched initialization; articulated parts require more outputs. [Paper](https://openaccess.thecvf.com/content/CVPR2022/papers/Liu_HOI4D_A_4D_Egocentric_Dataset_for_Category-Level_Human-Object_Interaction_CVPR_2022_paper.pdf), [challenge code](https://github.com/hoi4d/ObjTracking). |
-| **HOT3D / HOT3D-Clips** | Egocentric hand-object interactions with motion-capture object poses and scanned object models; synchronized views. | Public data/toolkit and curated 150-frame clips. Associated BOP object-pose and hand-pose challenges have task-specific protocols. | **Second batch**, or an alternative to HOI4D if its split audit fails. Focus on rigid-object trajectories; derive GT boxes consistently from object models. A framewise BOP score alone is not a temporal tracking score. [Project and toolkit links](https://facebookresearch.github.io/hot3d/). |
+| **HOT3D / HOT3D-Clips** | Egocentric hand-object interactions with motion-capture object poses and scanned object models; synchronized views. | Public data/toolkit and curated 150-frame clips. Associated BOP object-pose and hand-pose challenges have task-specific protocols. | **Second batch**, complementing ADT and HOI4D with additional capture conditions and object instances. Focus on rigid-object trajectories; derive GT boxes consistently from object models. A framewise BOP score alone is not a temporal tracking score. [Project and toolkit links](https://facebookresearch.github.io/hot3d/). |
 | **nuScenes Tracking** | Outdoor 3D multi-object tracking with stable identities and objects entering/leaving view. | Public devkit; validation can be scored locally. Official metrics include AMOTA, AMOTP, and identity switches. Hidden test labels require server evaluation. | **High scientific value; more integration work.** Export global-frame boxes, velocities, classes, confidence, and track IDs. Official tracking is online: no future frames. Full-scene coverage needs detection/association beyond first-frame slots. [Official protocol and scorer](https://github.com/nutonomy/nuscenes-devkit/blob/master/python-sdk/nuscenes/eval/tracking/README.md). |
 | **TAPVid-3D** | Long-range tracking of arbitrary physical points, including visibility and occlusion. | Public data/code; evaluates metric 3D point trajectories with Jaccard-based scoring. | **Defer for the current box interface.** It requires tracking the queried surface point; box centers or corners are not interchangeable with those targets. [Official project](https://tapvid3d.github.io/). |
 | **DA4D / DetAny4D** | Sequence-level 3D boxes and cross-frame geometric consistency. | Paper reports 3D AP and center/vertex temporal variation. The checked project page still labels code “Soon”; a runnable data/evaluation release was not verified. | **Watchlist.** Relevant to our output format, but its indoor consistency results should not stand in for moving-object tracking. [Project](https://jarvishou829.github.io/DA4D/), [paper and metric definitions](https://arxiv.org/html/2511.18814v1). |
@@ -107,10 +107,10 @@ remain separate from tests of moving-object trajectories.
 
 ## Integration order and comparison design
 
-1. **Establish direct temporal perception.** Audit held-out ADT and HOI4D rigid
-   sequences, implement a common temporal manifest and derived trajectory scorer,
-   and compare Full, Old Small, and WDS518 e100. Use HOT3D if suitable held-out
-   sequences cannot be established for the first two datasets.
+1. **Establish direct temporal perception.** Prepare held-out ADT and HOI4D rigid
+   sequences under the [split protocol](adt_hoi4d_split_protocol.md), implement a
+   common temporal manifest and derived trajectory scorer, and compare Full,
+   Old Small, and WDS518 e100. Add HOT3D for complementary capture conditions.
 2. **Add complementary QA first.** Integrate MotionBench DEV and CLEVRER
    validation; add TempCompass MC as a temporal control. Promote MLLM4D-Bench once
    its independent QA and scoring inputs are verified.
@@ -122,12 +122,14 @@ remain separate from tests of moving-object trajectories.
 
 Before reporting results, resolve the following model-specific issues:
 
-- **Training overlap:** the inspected local Full/Small dataset catalogs include
-  ADT and HOI4D; the Small WDS `hf_wds_data.yaml` also lists both as training
-  sources. A config entry is not proof of an individual checkpoint's exposure.
-  Audit the actual run manifests and sequence/object IDs. Use held-out splits
-  and label in-domain generalization accurately; do not claim dataset-level
-  zero-shot performance from these names alone.
+- **Training and evaluation splits:** the WDS518 e100 checkpoint's saved loader
+  identity and manifest confirm train-only selection for 64 ADT and 522 HOI4D
+  sequences. The project owner confirms that earlier ADT training used the same
+  sequences. HOI4D evaluation adopts the project assumption that its test set
+  was unseen during training. Use the [split protocol and sequence inventory](adt_hoi4d_split_protocol.md)
+  to prepare held-out evaluation manifests. Report these as in-domain held-out
+  evaluations; the dataset names also occur in training. Full and Old Small
+  comparisons should record their own checkpoint-specific training inventories.
 - **Input protocol:** distinguish predicted proposals, initial GT 2D prompts,
   repeated GT 2D prompts, and GT pose initialization. Supply GT identities only
   to the scorer, except for explicit target initialization allowed by a task.

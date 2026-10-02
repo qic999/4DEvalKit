@@ -187,6 +187,11 @@ ground truth. Its first-frame proposal strategy can miss objects entering later.
 Candidate temporal evaluations include ADT, HOI4D, HOT3D, and nuScenes Tracking.
 See [4D perception candidates](docs/4d_benchmark_survey.md#4d-perception-candidates)
 for ground-truth availability, metrics, and required protocol changes.
+For WDS518 e100, the project owner confirms that earlier ADT training used the
+same sequences as the WDS stage; HOI4D evaluation adopts the project assumption
+that its test set was unseen during training. See the
+[ADT / HOI4D split protocol](docs/adt_hoi4d_split_protocol.md) for the training
+inventory and how to select held-out evaluation sequences.
 
 ## 4D Reasoning
 

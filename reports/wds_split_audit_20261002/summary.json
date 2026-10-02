@@ -1,0 +1,71 @@
+{
+  "checkpoint_revision": "140acdba93481834b8a8e6f790e00761f4e5fc96",
+  "checkpoint_sha256": "9cfbab0c02e109a15d6fd19cc51791f1bb75d85f8e3aaf52861013d3ef5355b5",
+  "epoch": 100,
+  "train_steps": 160000,
+  "lock_sha256": "e8f9c014b8de92458777c41d56428b92514a35b6451e6941d3a12f0c4e874418",
+  "loader_fingerprint": "d22e4dea8fdf44b9ead27e20be30490ebc84b10be46cdadc2d8f9d7722c1b7d1",
+  "loader_identity_matches": true,
+  "datasets": {
+    "ADT": {
+      "sequences": 64,
+      "frames_before_wds_overlap": 140109,
+      "shards_by_split": {
+        "train": 539
+      },
+      "packed_samples": 2218,
+      "all_sample_keys_reproduced": true,
+      "all_receipts_match_locked_shard_hashes": true,
+      "workers_with_saved_cursor": 32
+    },
+    "HOI4D": {
+      "sequences": 522,
+      "frames_before_wds_overlap": 155018,
+      "shards_by_split": {
+        "train": 78
+      },
+      "packed_samples": 2595,
+      "all_sample_keys_reproduced": true,
+      "all_receipts_match_locked_shard_hashes": true,
+      "workers_with_saved_cursor": 32,
+      "official_public_release_matches": 521,
+      "sequences_absent_from_official_release": [
+        "ZY20210800001/H1/C20/N32/S292/s04/T3"
+      ],
+      "absent_sequence_packed_samples": 5,
+      "category_sequence_counts": {
+        "C14": 23,
+        "C20": 167,
+        "C4": 187,
+        "C6": 67,
+        "C8": 73,
+        "C1": 5
+      }
+    }
+  },
+  "official_test_overlap_status": "not_independently_certified_by_metadata_audit",
+  "scope": "Direct audit covers the named ADT/HOI4D sources in the WDS stage; earlier ADT sequence equivalence is project-owner confirmed; other-source content deduplication is outside scope.",
+  "source_checksums": {
+    "wds.lock.json": "47c9ffc2a277626b201d1357223e2e841b663dfda705c18c4ff7383ed2aa13f9",
+    "ADT.json": "2db48cf760704b08aa1226e6c849db26291be50c5719981d3c46dc28763064c6",
+    "preflight.json": "8444962da56be45d3b31397464bb88a6fa3e1caea21f29cbe6a18532d9e811e4",
+    "hoi4d_official_release.txt": "11f9008cab3c4cc1439c49f0741e3e08a896276b2d2235981ee1da906e615503",
+    "config_resolved.yaml": "a45a39b577e658858feaa9e6473d075d0470b748830ef1a91b74e68ee88eeb5c",
+    "hf_wds_dataset.py": "d5c3a3fc2625976733e6bc3d61f346cf19f2c202938c92a41afef772bfc9d284"
+  },
+  "evaluation_protocol": {
+    "updated": "2026-10-02",
+    "ADT": {
+      "earlier_training_sequences_equal_wds_sequences": true,
+      "basis": "project_owner_confirmation",
+      "held_out_policy": "Exclude the same 64 training recordings across initialization and WDS stages."
+    },
+    "HOI4D": {
+      "test_unseen": true,
+      "basis": "project_owner_instruction_adopted_as_evaluation_assumption",
+      "held_out_policy": "Use the selected test split and retain the 522 known training recordings as exclusions."
+    },
+    "reporting_setting": "in_domain_held_out",
+    "temporal_adapter_status": "planned"
+  }
+}
