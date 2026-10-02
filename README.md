@@ -4,6 +4,17 @@ Evaluate spatial perception and reasoning on images, multiple views, and video.
 Choose a workflow below to score 3D boxes directly or answer benchmark questions
 from RGB, geometry, captions, or combinations of these inputs.
 
+| Evaluation area | Benchmarks | Evaluation scope |
+|---|---|---|
+| [3D Perception](#3d-perception) | ScanNet; Argoverse 2; Omni3D (**KITTI, nuScenes, SUNRGBD, Hypersim, ARKitScenes, Objectron**); WildDet3D-Bench | Direct, box-conditioned 3D regression: canonical ODS, oriented 3D IoU AP, and center-distance AP. |
+| [3D Reasoning](#3d-reasoning) | BLINK (spatial subset); CV-Bench; 3DSRBench; EmbSpatial-Bench; Q-Spatial-Bench; MindCube; MMSI-Bench; ViewSpatial-Bench; VSI-Bench; SAT | Spatial QA on images, multiple views, static-scene videos, and action-conditioned questions. |
+| [4D Perception](#4d-perception) | Stereo4D (**383 independent frames**) | Dynamic-scene, per-frame 3D box AP. Cross-frame tracking and trajectory metrics are not implemented. |
+| [4D Reasoning](#4d-reasoning) | STI-Bench; VLM4D (**real_mc, synthetic_mc**); DSI-Bench (**std, all augmentations**) | QA about object/camera motion, temporal order, and changing spatial relationships. |
+
+This table covers the four workflows below. Additional embodied planning,
+pointing, affordance, and visual-trace adapters are listed in the
+[full benchmark matrix](docs/benchmark_matrix.md).
+
 Use Python 3.10 or newer for the toolkit and run commands from the repository root:
 
 ```bash
