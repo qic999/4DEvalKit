@@ -4,20 +4,24 @@ Evaluate spatial perception and reasoning on images, multiple views, and video.
 Choose a workflow below to score 3D boxes directly or answer benchmark questions
 from RGB, geometry, captions, or combinations of these inputs.
 
-| Evaluation area | Benchmarks | Evaluation scope |
+| Evaluation area | Benchmarks and status | Evaluation scope |
 |---|---|---|
-| [3D Perception](#3d-perception) | ScanNet; Argoverse 2; Omni3D (**KITTI, nuScenes, SUNRGBD, Hypersim, ARKitScenes, Objectron**); WildDet3D-Bench | Direct, box-conditioned 3D regression: canonical ODS, oriented 3D IoU AP, and center-distance AP. |
-| [3D Reasoning](#3d-reasoning) | BLINK (spatial subset); CV-Bench; 3DSRBench; EmbSpatial-Bench; Q-Spatial-Bench; MindCube; MMSI-Bench; ViewSpatial-Bench; VSI-Bench; SAT | Spatial QA on images, multiple views, static-scene videos, and action-conditioned questions. |
-| [4D Perception](#4d-perception) | Stereo4D (**383 independent frames**) | Dynamic-scene, per-frame 3D box AP. Cross-frame tracking and trajectory metrics are not implemented. |
-| [4D Reasoning](#4d-reasoning) | STI-Bench; VLM4D (**real_mc, synthetic_mc**); DSI-Bench (**std, all augmentations**) | QA about object/camera motion, temporal order, and changing spatial relationships. |
+| [3D Perception](#3d-perception) | **Supported:** ScanNet; Argoverse 2; Omni3D (**KITTI, nuScenes, SUNRGBD, Hypersim, ARKitScenes, Objectron**); WildDet3D-Bench | Direct, box-conditioned 3D regression: canonical ODS, oriented 3D IoU AP, and center-distance AP. |
+| [3D Reasoning](#3d-reasoning) | **Supported:** BLINK (spatial subset); CV-Bench; 3DSRBench; EmbSpatial-Bench; Q-Spatial-Bench; MindCube; MMSI-Bench; ViewSpatial-Bench; VSI-Bench; SAT | Spatial QA on images, multiple views, static-scene videos, and action-conditioned questions. |
+| [4D Perception](#4d-perception) | **Supported:** Stereo4D (**383 independent frames**).<br>**Planned:** ADT; HOI4D Object Tracking; HOT3D / HOT3D-Clips; nuScenes Tracking.<br>**Conditional:** DA4D / DetAny4D (evaluation release).<br>**Deferred:** TAPVid-3D (requires point trajectories). | **Current:** dynamic-scene, per-frame 3D box AP.<br>**Planned:** indoor object trajectories, pose and occlusion; outdoor multi-object tracking and identity continuity.<br>**Conditional / deferred:** temporal box consistency; arbitrary 3D point tracking. Cross-frame metrics are not yet implemented. |
+| [4D Reasoning](#4d-reasoning) | **Supported:** STI-Bench; VLM4D (**real_mc, synthetic_mc**); DSI-Bench (**std, all augmentations**).<br>**Planned:** MotionBench (**DEV**); CLEVRER (**validation**); TempCompass (**MC**); MVVBench; 4D-Bench; V-STaR; Physion V1.5 (**separate physical-prediction protocol**).<br>**Conditional:** MLLM4D-Bench (independent QA release verification). | **Current:** QA about object/camera motion, temporal order, and changing spatial relationships.<br>**Planned:** fine-grained motion, causal/counterfactual reasoning, multi-view video QA, temporal/spatial grounding, and physical prediction. |
 
-This table covers the four workflows below. Additional embodied planning,
-pointing, affordance, and visual-trace adapters are listed in the
+**Supported** entries have toolkit workflows; **Planned** entries are integration
+targets with no adapter yet. **Conditional** entries await release verification;
+**Deferred** entries require additional model outputs. These labels describe
+implementation status, not completed evaluation results.
+
+Additional embodied planning, pointing, affordance, and visual-trace adapters are listed in the
 [full benchmark matrix](docs/benchmark_matrix.md).
 
-For additional temporal evaluation coverage, see the
-[4D benchmark survey and integration priorities](docs/4d_benchmark_survey.md).
-It distinguishes proposed additions from the implemented workflows in this table.
+For the added benchmarks' priorities, metrics, and integration requirements, see
+the [4D benchmark survey](docs/4d_benchmark_survey.md). ADT and HOI4D use the
+documented [training and evaluation split protocol](docs/adt_hoi4d_split_protocol.md).
 
 Use Python 3.10 or newer for the toolkit and run commands from the repository root:
 
