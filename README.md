@@ -4,17 +4,18 @@ Evaluate spatial perception and reasoning on images, multiple views, and video.
 Choose a workflow below to score 3D boxes directly or answer benchmark questions
 from RGB, geometry, captions, or combinations of these inputs.
 
-| Evaluation area | Benchmarks and status | Evaluation scope |
-|---|---|---|
-| [3D Perception](#3d-perception) | **Supported:** ScanNet; Argoverse 2; Omni3D (**KITTI, nuScenes, SUNRGBD, Hypersim, ARKitScenes, Objectron**); WildDet3D-Bench | Direct, box-conditioned 3D regression: canonical ODS, oriented 3D IoU AP, and center-distance AP. |
-| [3D Reasoning](#3d-reasoning) | **Supported:** BLINK (spatial subset); CV-Bench; 3DSRBench; EmbSpatial-Bench; Q-Spatial-Bench; MindCube; MMSI-Bench; ViewSpatial-Bench; VSI-Bench; SAT | Spatial QA on images, multiple views, static-scene videos, and action-conditioned questions. |
-| [4D Perception](#4d-perception) | **Supported:** Stereo4D (**383 independent frames**).<br>**Planned:** ADT; HOI4D Object Tracking; HOT3D / HOT3D-Clips; nuScenes Tracking.<br>**Conditional:** DA4D / DetAny4D (evaluation release).<br>**Deferred:** TAPVid-3D (requires point trajectories). | **Current:** dynamic-scene, per-frame 3D box AP.<br>**Planned:** indoor object trajectories, pose and occlusion; outdoor multi-object tracking and identity continuity.<br>**Conditional / deferred:** temporal box consistency; arbitrary 3D point tracking. Cross-frame metrics are not yet implemented. |
-| [4D Reasoning](#4d-reasoning) | **Supported:** STI-Bench; VLM4D (**real_mc, synthetic_mc**); DSI-Bench (**std, all augmentations**).<br>**Planned:** MotionBench (**DEV**); CLEVRER (**validation**); TempCompass (**MC**); MVVBench; 4D-Bench; V-STaR; Physion V1.5 (**separate physical-prediction protocol**).<br>**Conditional:** MLLM4D-Bench (independent QA release verification). | **Current:** QA about object/camera motion, temporal order, and changing spatial relationships.<br>**Planned:** fine-grained motion, causal/counterfactual reasoning, multi-view video QA, temporal/spatial grounding, and physical prediction. |
+| Evaluation area | Benchmarks and toolkit status | Official evaluation code | Evaluation scope |
+|---|---|---|---|
+| [3D Perception](#3d-perception) | **Integrated:** ScanNet; Argoverse 2; Omni3D (**KITTI, nuScenes, SUNRGBD, Hypersim, ARKitScenes, Objectron**); WildDet3D-Bench | Uses the pinned WildDet3D evaluator; see [scoring setup](docs/perception_evaluation.md). | Direct, box-conditioned 3D regression: canonical ODS, oriented 3D IoU AP, and center-distance AP. |
+| [3D Reasoning](#3d-reasoning) | **Integrated:** BLINK (spatial subset); CV-Bench; 3DSRBench; EmbSpatial-Bench; Q-Spatial-Bench; MindCube; MMSI-Bench; ViewSpatial-Bench; VSI-Bench; SAT | Benchmark-specific scoring adapters; see [metric protocols](docs/metric_protocols.md). | Spatial QA on images, multiple views, static-scene videos, and action-conditioned questions. |
+| [4D Perception](#4d-perception) | **Integrated:** Stereo4D (**383 independent frames**).<br>**Planned:** ADT; HOI4D Object Tracking; HOT3D / HOT3D-Clips; nuScenes Tracking.<br>**Conditional:** DA4D / DetAny4D (evaluation release).<br>**Deferred:** TAPVid-3D (requires point trajectories). | **Available:** ADT challenge scorer; HOT3D via BOP; nuScenes Tracking; TAPVid-3D.<br>**Partial:** HOI4D preprocessing and submission interface.<br>**Not verified:** DA4D release.<br>[Entry points and input requirements](docs/official_4d_evaluators.md#4d-perception). | **Current:** dynamic-scene, per-frame 3D box AP.<br>**Planned:** object pose/trajectory evaluation, occlusion, and multi-object tracking.<br>Official pose scores and additional temporal diagnostics are separate protocols. |
+| [4D Reasoning](#4d-reasoning) | **Integrated:** STI-Bench; VLM4D (**real_mc, synthetic_mc**); DSI-Bench (**std, all augmentations**).<br>**Planned:** MotionBench (**DEV**); CLEVRER (**validation**); TempCompass (**MC**); MVVBench; 4D-Bench; V-STaR; Physion V1.5 (**separate physical-prediction protocol**).<br>**Conditional:** MLLM4D-Bench (independent QA release verification). | **Available:** MotionBench; CLEVRER; TempCompass; 4D-Bench; V-STaR; Physion V1.5.<br>**Partial:** MLLM-4D scorer exists; independent benchmark QA unverified.<br>**Not found in release:** MVVBench scorer.<br>[Entry points and input requirements](docs/official_4d_evaluators.md#4d-reasoning). | **Current:** QA about object/camera motion, temporal order, and changing spatial relationships.<br>**Planned:** fine-grained motion, causal/counterfactual reasoning, multi-view video QA, temporal/spatial grounding, and physical prediction. |
 
-**Supported** entries have toolkit workflows; **Planned** entries are integration
-targets with no adapter yet. **Conditional** entries await release verification;
-**Deferred** entries require additional model outputs. These labels describe
-implementation status, not completed evaluation results.
+**Integrated** means a workflow exists in 4DEvalKit. **Planned** entries still
+need a toolkit adapter, even when official scoring code is available.
+**Conditional** entries await release verification; **Deferred** entries require
+additional model outputs. The official-code column records source inspection,
+not a completed runtime evaluation. See the [14-benchmark code audit](docs/official_4d_evaluators.md).
 
 Additional embodied planning, pointing, affordance, and visual-trace adapters are listed in the
 [full benchmark matrix](docs/benchmark_matrix.md).

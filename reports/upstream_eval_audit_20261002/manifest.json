@@ -1,0 +1,507 @@
+{
+  "checked_date": "2026-10-02",
+  "verification_level": "source_inspection",
+  "full_evaluators_executed": false,
+  "full_datasets_downloaded": false,
+  "new_toolkit_adapters_added": false,
+  "candidate_count": 14,
+  "task_relevant_scorers_found": 10,
+  "benchmarks": [
+    {
+      "name": "ADT",
+      "official_code_status": "available",
+      "toolkit_adapter_status": "not_integrated"
+    },
+    {
+      "name": "HOI4D Object Tracking",
+      "official_code_status": "submission_interface_only",
+      "toolkit_adapter_status": "not_integrated"
+    },
+    {
+      "name": "HOT3D / HOT3D-Clips",
+      "official_code_status": "available",
+      "toolkit_adapter_status": "not_integrated"
+    },
+    {
+      "name": "nuScenes Tracking",
+      "official_code_status": "available",
+      "toolkit_adapter_status": "not_integrated"
+    },
+    {
+      "name": "TAPVid-3D",
+      "official_code_status": "available",
+      "toolkit_adapter_status": "not_integrated"
+    },
+    {
+      "name": "DA4D / DetAny4D",
+      "official_code_status": "release_unverified",
+      "toolkit_adapter_status": "not_integrated"
+    },
+    {
+      "name": "MotionBench",
+      "official_code_status": "available",
+      "toolkit_adapter_status": "not_integrated"
+    },
+    {
+      "name": "CLEVRER",
+      "official_code_status": "available",
+      "toolkit_adapter_status": "not_integrated"
+    },
+    {
+      "name": "TempCompass",
+      "official_code_status": "available",
+      "toolkit_adapter_status": "not_integrated"
+    },
+    {
+      "name": "4D-Bench",
+      "official_code_status": "available",
+      "toolkit_adapter_status": "not_integrated"
+    },
+    {
+      "name": "V-STaR",
+      "official_code_status": "available",
+      "toolkit_adapter_status": "not_integrated"
+    },
+    {
+      "name": "Physion V1.5",
+      "official_code_status": "available",
+      "toolkit_adapter_status": "not_integrated"
+    },
+    {
+      "name": "MVVBench",
+      "official_code_status": "scorer_not_found_in_inspected_release",
+      "toolkit_adapter_status": "not_integrated"
+    },
+    {
+      "name": "MLLM4D-Bench",
+      "official_code_status": "scorer_available_independent_qa_unverified",
+      "toolkit_adapter_status": "not_integrated"
+    }
+  ],
+  "repositories": [
+    {
+      "repo": "facebookresearch/projectaria_tools",
+      "commit": "54fdff0b79caa94513b13265c6dd8e29ba664359",
+      "tree": "2ba963785692cbdea7bdb369a92817b736da2720",
+      "paths": [
+        "projects/AriaDigitalTwinDatasetTools/challenges/evaluate.py"
+      ]
+    },
+    {
+      "repo": "facebookresearch/ATEK",
+      "commit": "aae40aa7d5b9573b5b81460467d7377c519127fb",
+      "tree": "f5d0751b880962aed0e7307cd778b70668122a51",
+      "paths": [
+        "docs/evaluation.md",
+        "atek/evaluation/static_object_detection/eval_obb3.py"
+      ]
+    },
+    {
+      "repo": "hoi4d/ObjTracking",
+      "commit": "afa7bf37b02b7e33cf245acd08b98c207ccc175c",
+      "tree": "33632260fb69690eb7e1194fc8dd56d3199d0c14",
+      "paths": [
+        "README.md",
+        "process_data.py",
+        "process_BundleTrack_data.py"
+      ]
+    },
+    {
+      "repo": "facebookresearch/hot3d",
+      "commit": "146b34afef8c1a32adeef7e981c070109f225c87",
+      "tree": "962cd4cba19ea8ead9574acb072ca9e441442667",
+      "paths": [
+        "hot3d/clips/bop_format_converters/README.md"
+      ]
+    },
+    {
+      "repo": "thodan/bop_toolkit",
+      "commit": "cea62d651c7e395b2e1962b9749e4e89693c6ac4",
+      "tree": "8a8e2fdfa9e8a1af0ba00e36d61ea930ca9593bf",
+      "paths": [
+        "scripts/eval_bop24_pose.py"
+      ]
+    },
+    {
+      "repo": "nutonomy/nuscenes-devkit",
+      "commit": "b40adc467b919192899405d9b77871afee8efa07",
+      "tree": "95fa69c7146d9283dc896cb3b899ed41431e9282",
+      "paths": [
+        "python-sdk/nuscenes/eval/tracking/evaluate.py"
+      ]
+    },
+    {
+      "repo": "google-deepmind/tapnet",
+      "commit": "730cda1c730877cfedbe01bf87fb1cadb78a565d",
+      "tree": "a71c1320696a23e6c8cecf975991cccdcc76cdd8",
+      "paths": [
+        "tapnet/tapvid3d/evaluation/evaluate_model.py",
+        "tapnet/tapvid3d/evaluation/metrics.py"
+      ]
+    },
+    {
+      "repo": "zai-org/MotionBench",
+      "commit": "dcc9b0713c9b92d1c5d4ec7ee0b6dd51f86325a3",
+      "tree": "db2b49e556d9bf6db0f838974c0e20cb7f38d867",
+      "paths": [
+        "scripts/test_acc.py",
+        "motionbench/metrics/compute_accuracy.py"
+      ]
+    },
+    {
+      "repo": "chuangg/CLEVRER",
+      "commit": "98b842082ba4f7c18b6b9e3f39145871782a65ef",
+      "tree": "618f55fb1762a9e2b10e0801d345d04433f51101",
+      "paths": [
+        "temporal_reasoning/eval.py",
+        "temporal_reasoning/README.md"
+      ]
+    },
+    {
+      "repo": "WenxuanZhu1103/4D-Bench",
+      "commit": "f40f49a7539c4c5b1485ad5e80370cf006bbaf53",
+      "tree": "35c6f2701e8c2f2a73e7031803b2ef86151332f4",
+      "paths": [
+        "4D_Object_Question_Answering/README.md",
+        "4D_Object_Question_Answering/eval_code_example/qwen2_vl_7b_exp.py",
+        "4D_Object_Captioning/code/eval_metrics/other_metrics/get_other_metrics_scores.py"
+      ]
+    },
+    {
+      "repo": "V-STaR-Bench/V-STaR",
+      "commit": "1894682b15be0a0c0c5ab24be6e8252743cd6c2f",
+      "tree": "23cbd64588e3fa97fb7712ad4c265abe5f889ff8",
+      "paths": [
+        "eval.py"
+      ]
+    },
+    {
+      "repo": "llyx97/TempCompass",
+      "commit": "e1b463166400633e6061962d890a9ae85db29f70",
+      "tree": "9bd30aa285251c4971570187c9671ab62810b61f",
+      "paths": [
+        "eval_multi-choice.py",
+        "utils/eval_utils.py",
+        "README.md"
+      ]
+    },
+    {
+      "repo": "neuroailab/physion_evaluator",
+      "commit": "03924d4a4c518044a279c10f286335bb11a1a709",
+      "tree": "3a0817690161393c7104438def9af2154065f9c5",
+      "paths": [
+        "physion_evaluator/train_readout.py",
+        "README.md"
+      ]
+    },
+    {
+      "repo": "GVCLab/MLLM-4D",
+      "commit": "544fbd57627bbe789b92e42eb33ab4bf8e6a7fec",
+      "tree": "91f3ca9f1b63249f6401d4ae2cd9cff7c604b086",
+      "paths": [
+        "evaluation/main.py",
+        "evaluation/evaluation.py",
+        "evaluation/utils/constant.py",
+        "scripts/download_dataset_hf.py",
+        "README.md"
+      ]
+    }
+  ],
+  "inspected_files": [
+    {
+      "repo": "facebookresearch/projectaria_tools",
+      "path": "projects/AriaDigitalTwinDatasetTools/challenges/evaluate.py",
+      "url": "https://raw.githubusercontent.com/facebookresearch/projectaria_tools/54fdff0b79caa94513b13265c6dd8e29ba664359/projects/AriaDigitalTwinDatasetTools/challenges/evaluate.py",
+      "sha256": "dbef002ecc22c6187102ddad84b77f124d69478426570ea91d93ce3725d262ce",
+      "bytes": 8806
+    },
+    {
+      "repo": "facebookresearch/ATEK",
+      "path": "docs/evaluation.md",
+      "url": "https://raw.githubusercontent.com/facebookresearch/ATEK/aae40aa7d5b9573b5b81460467d7377c519127fb/docs/evaluation.md",
+      "sha256": "695052a29c221c9db9656ad31f3a83cee6de40a7483e633d87160989c4862455",
+      "bytes": 1151
+    },
+    {
+      "repo": "facebookresearch/ATEK",
+      "path": "atek/evaluation/static_object_detection/eval_obb3.py",
+      "url": "https://raw.githubusercontent.com/facebookresearch/ATEK/aae40aa7d5b9573b5b81460467d7377c519127fb/atek/evaluation/static_object_detection/eval_obb3.py",
+      "sha256": "c0535a83426ce1bef261d40ff2cd46e6f0d00fd6f79d344162c6ddea0b3b5a23",
+      "bytes": 12219
+    },
+    {
+      "repo": "hoi4d/ObjTracking",
+      "path": "README.md",
+      "url": "https://raw.githubusercontent.com/hoi4d/ObjTracking/afa7bf37b02b7e33cf245acd08b98c207ccc175c/README.md",
+      "sha256": "aaffe2d7100058ed9431fa3a98c5c21c10d9236c8349428ed5fd27e7bbbf6b30",
+      "bytes": 1516
+    },
+    {
+      "repo": "hoi4d/ObjTracking",
+      "path": "process_data.py",
+      "url": "https://raw.githubusercontent.com/hoi4d/ObjTracking/afa7bf37b02b7e33cf245acd08b98c207ccc175c/process_data.py",
+      "sha256": "d914fbd569444cc975de74fd254c5c2707351a8d081f79ed01b8d37d31db75ba",
+      "bytes": 5085
+    },
+    {
+      "repo": "hoi4d/ObjTracking",
+      "path": "process_BundleTrack_data.py",
+      "url": "https://raw.githubusercontent.com/hoi4d/ObjTracking/afa7bf37b02b7e33cf245acd08b98c207ccc175c/process_BundleTrack_data.py",
+      "sha256": "b886b39b8e420536b7e05e0c854af4fbd32ed497a7bfc41a1f8fcf53537bdc6c",
+      "bytes": 5923
+    },
+    {
+      "repo": "facebookresearch/hot3d",
+      "path": "hot3d/clips/bop_format_converters/README.md",
+      "url": "https://raw.githubusercontent.com/facebookresearch/hot3d/146b34afef8c1a32adeef7e981c070109f225c87/hot3d/clips/bop_format_converters/README.md",
+      "sha256": "8ba416f33c3c3e77665448d27e8ef41c61dc6030ac4ce787584b51d503e5a54f",
+      "bytes": 1476
+    },
+    {
+      "repo": "thodan/bop_toolkit",
+      "path": "scripts/eval_bop24_pose.py",
+      "url": "https://raw.githubusercontent.com/thodan/bop_toolkit/cea62d651c7e395b2e1962b9749e4e89693c6ac4/scripts/eval_bop24_pose.py",
+      "sha256": "d3aa46b4a67b563eb11772636e1532a206e1bbbce20d23b6c4d50c5d30c4a1d4",
+      "bytes": 14093
+    },
+    {
+      "repo": "nutonomy/nuscenes-devkit",
+      "path": "python-sdk/nuscenes/eval/tracking/evaluate.py",
+      "url": "https://raw.githubusercontent.com/nutonomy/nuscenes-devkit/b40adc467b919192899405d9b77871afee8efa07/python-sdk/nuscenes/eval/tracking/evaluate.py",
+      "sha256": "25df7ae5fc59dcdffbcf192ec3afee3126e511fa30bc250f9b0fedbb88fdf56c",
+      "bytes": 12859
+    },
+    {
+      "repo": "google-deepmind/tapnet",
+      "path": "tapnet/tapvid3d/evaluation/evaluate_model.py",
+      "url": "https://raw.githubusercontent.com/google-deepmind/tapnet/730cda1c730877cfedbe01bf87fb1cadb78a565d/tapnet/tapvid3d/evaluation/evaluate_model.py",
+      "sha256": "13763ad46d4ffb2bb014c61c6ec7f908a2e6e278cfaa91d9c6849f5c176eaa38",
+      "bytes": 10495
+    },
+    {
+      "repo": "google-deepmind/tapnet",
+      "path": "tapnet/tapvid3d/evaluation/metrics.py",
+      "url": "https://raw.githubusercontent.com/google-deepmind/tapnet/730cda1c730877cfedbe01bf87fb1cadb78a565d/tapnet/tapvid3d/evaluation/metrics.py",
+      "sha256": "f83836ce6e6abc91c1902d9069eb63f9059d7f1e9dc220278bec386a319fbd30",
+      "bytes": 13519
+    },
+    {
+      "repo": "zai-org/MotionBench",
+      "path": "scripts/test_acc.py",
+      "url": "https://raw.githubusercontent.com/zai-org/MotionBench/dcc9b0713c9b92d1c5d4ec7ee0b6dd51f86325a3/scripts/test_acc.py",
+      "sha256": "42afab873d6c1a4f5ba83e4537aeb49c9597887df24e6b42303713807c0c008f",
+      "bytes": 438
+    },
+    {
+      "repo": "zai-org/MotionBench",
+      "path": "motionbench/metrics/compute_accuracy.py",
+      "url": "https://raw.githubusercontent.com/zai-org/MotionBench/dcc9b0713c9b92d1c5d4ec7ee0b6dd51f86325a3/motionbench/metrics/compute_accuracy.py",
+      "sha256": "657159ffb53b1a171375a93a582b654acb881cafd30cf2283331b180f8f7d8ad",
+      "bytes": 1764
+    },
+    {
+      "repo": "chuangg/CLEVRER",
+      "path": "temporal_reasoning/eval.py",
+      "url": "https://raw.githubusercontent.com/chuangg/CLEVRER/98b842082ba4f7c18b6b9e3f39145871782a65ef/temporal_reasoning/eval.py",
+      "sha256": "e4bea3cfd9419e07e0c94988986c5fe4aa6ee7bd314c2c18205f62b2668d827d",
+      "bytes": 21364
+    },
+    {
+      "repo": "chuangg/CLEVRER",
+      "path": "temporal_reasoning/README.md",
+      "url": "https://raw.githubusercontent.com/chuangg/CLEVRER/98b842082ba4f7c18b6b9e3f39145871782a65ef/temporal_reasoning/README.md",
+      "sha256": "a7169a433aa074ac36c0461c6e7f41cf7b1085ba9e4f2b764e980c16eea60aa2",
+      "bytes": 309
+    },
+    {
+      "repo": "WenxuanZhu1103/4D-Bench",
+      "path": "4D_Object_Question_Answering/README.md",
+      "url": "https://raw.githubusercontent.com/WenxuanZhu1103/4D-Bench/f40f49a7539c4c5b1485ad5e80370cf006bbaf53/4D_Object_Question_Answering/README.md",
+      "sha256": "e1030d8a2b53c0c11f50319ea97cdb91d89fb7b62de1c0107d28803904eeb5a5",
+      "bytes": 3580
+    },
+    {
+      "repo": "WenxuanZhu1103/4D-Bench",
+      "path": "4D_Object_Question_Answering/eval_code_example/qwen2_vl_7b_exp.py",
+      "url": "https://raw.githubusercontent.com/WenxuanZhu1103/4D-Bench/f40f49a7539c4c5b1485ad5e80370cf006bbaf53/4D_Object_Question_Answering/eval_code_example/qwen2_vl_7b_exp.py",
+      "sha256": "2a2deb5b1b9bcd79079775c50b016d6e06543fe486f23ee29f4e0df90b579a6f",
+      "bytes": 5543
+    },
+    {
+      "repo": "WenxuanZhu1103/4D-Bench",
+      "path": "4D_Object_Captioning/code/eval_metrics/other_metrics/get_other_metrics_scores.py",
+      "url": "https://raw.githubusercontent.com/WenxuanZhu1103/4D-Bench/f40f49a7539c4c5b1485ad5e80370cf006bbaf53/4D_Object_Captioning/code/eval_metrics/other_metrics/get_other_metrics_scores.py",
+      "sha256": "2fef1dac9a90039b2ada629e26d40ad6a4ff2415cd9a7464ab549aa69119652f",
+      "bytes": 4965
+    },
+    {
+      "repo": "V-STaR-Bench/V-STaR",
+      "path": "eval.py",
+      "url": "https://raw.githubusercontent.com/V-STaR-Bench/V-STaR/1894682b15be0a0c0c5ab24be6e8252743cd6c2f/eval.py",
+      "sha256": "c87f23730514b1e7d6dc286f586efdb1377ed18b920378940ff8ccfd8ecbc5d6",
+      "bytes": 20554
+    },
+    {
+      "repo": "llyx97/TempCompass",
+      "path": "eval_multi-choice.py",
+      "url": "https://raw.githubusercontent.com/llyx97/TempCompass/e1b463166400633e6061962d890a9ae85db29f70/eval_multi-choice.py",
+      "sha256": "ccffa4f717a3e2a29435b2bbe440109bf2def589cea73fde9fd44fd262fb379a",
+      "bytes": 3989
+    },
+    {
+      "repo": "llyx97/TempCompass",
+      "path": "utils/eval_utils.py",
+      "url": "https://raw.githubusercontent.com/llyx97/TempCompass/e1b463166400633e6061962d890a9ae85db29f70/utils/eval_utils.py",
+      "sha256": "514f728e6a4e273db7db2c3feab316c129ebcc08901e62352d5af71efb4e964c",
+      "bytes": 8484
+    },
+    {
+      "repo": "llyx97/TempCompass",
+      "path": "README.md",
+      "url": "https://raw.githubusercontent.com/llyx97/TempCompass/e1b463166400633e6061962d890a9ae85db29f70/README.md",
+      "sha256": "ecfc52e48ecdaf0bb75cdfad7e6d3e79e67e57f1ccfb4b12a181c381911e88a6",
+      "bytes": 13240
+    },
+    {
+      "repo": "neuroailab/physion_evaluator",
+      "path": "physion_evaluator/train_readout.py",
+      "url": "https://raw.githubusercontent.com/neuroailab/physion_evaluator/03924d4a4c518044a279c10f286335bb11a1a709/physion_evaluator/train_readout.py",
+      "sha256": "c833e79d09fb67c8c9224debbff7f8deae8a19d04dda2dcd9391096f553bb6c3",
+      "bytes": 5694
+    },
+    {
+      "repo": "neuroailab/physion_evaluator",
+      "path": "README.md",
+      "url": "https://raw.githubusercontent.com/neuroailab/physion_evaluator/03924d4a4c518044a279c10f286335bb11a1a709/README.md",
+      "sha256": "6aad353fd2157300ea7e9752a8128738133f9e5002e1fea5510f5e7225e1cc06",
+      "bytes": 7095
+    },
+    {
+      "repo": "GVCLab/MLLM-4D",
+      "path": "evaluation/main.py",
+      "url": "https://raw.githubusercontent.com/GVCLab/MLLM-4D/544fbd57627bbe789b92e42eb33ab4bf8e6a7fec/evaluation/main.py",
+      "sha256": "5e3f7a6809d1cfa1f2b422412082b03db16b9c83609a2299a3ec57c4ed413885",
+      "bytes": 4716
+    },
+    {
+      "repo": "GVCLab/MLLM-4D",
+      "path": "evaluation/evaluation.py",
+      "url": "https://raw.githubusercontent.com/GVCLab/MLLM-4D/544fbd57627bbe789b92e42eb33ab4bf8e6a7fec/evaluation/evaluation.py",
+      "sha256": "e48c864e7cd3b2232de357a289d6f0af1a1c7dc326ed4b8412049976db577b6f",
+      "bytes": 5080
+    },
+    {
+      "repo": "GVCLab/MLLM-4D",
+      "path": "evaluation/utils/constant.py",
+      "url": "https://raw.githubusercontent.com/GVCLab/MLLM-4D/544fbd57627bbe789b92e42eb33ab4bf8e6a7fec/evaluation/utils/constant.py",
+      "sha256": "5d5297e1308ecdd3145c8318f021fcc5e9762a183d1415d73e9a6517713a2ad2",
+      "bytes": 2215
+    },
+    {
+      "repo": "GVCLab/MLLM-4D",
+      "path": "scripts/download_dataset_hf.py",
+      "url": "https://raw.githubusercontent.com/GVCLab/MLLM-4D/544fbd57627bbe789b92e42eb33ab4bf8e6a7fec/scripts/download_dataset_hf.py",
+      "sha256": "89a28dba8c2d94adfeaa004e7f5472553be78307297797e51b37b041fdc2f9e0",
+      "bytes": 445
+    },
+    {
+      "repo": "GVCLab/MLLM-4D",
+      "path": "README.md",
+      "url": "https://raw.githubusercontent.com/GVCLab/MLLM-4D/544fbd57627bbe789b92e42eb33ab4bf8e6a7fec/README.md",
+      "sha256": "07347de35110595fa15c71695f0ad34bdc5795bab4ba5bb9f1a04e3aac26aa3f",
+      "bytes": 4950
+    },
+    {
+      "repo": "chuangg/CLEVRER",
+      "path": "README.md",
+      "url": "https://raw.githubusercontent.com/chuangg/CLEVRER/98b842082ba4f7c18b6b9e3f39145871782a65ef/README.md",
+      "sha256": "99bd3b91cf257e0b11f1473822e5bd84090e1e7feb4eb0bf18a296179996b6d4",
+      "bytes": 6312
+    },
+    {
+      "repo": "chuangg/CLEVRER",
+      "path": "executor/get_results.py",
+      "url": "https://raw.githubusercontent.com/chuangg/CLEVRER/98b842082ba4f7c18b6b9e3f39145871782a65ef/executor/get_results.py",
+      "sha256": "3116ea3e543fed46d024c7ce658fd7dde74c02e6740c7bfc3412e1a4095de662",
+      "bytes": 2579
+    },
+    {
+      "repo": "chuangg/CLEVRER",
+      "path": "executor/run_mc.py",
+      "url": "https://raw.githubusercontent.com/chuangg/CLEVRER/98b842082ba4f7c18b6b9e3f39145871782a65ef/executor/run_mc.py",
+      "sha256": "92b9533e9ca582554c794be6393260fe4fb4d94debc475e2a388739c23a1ee47",
+      "bytes": 5827
+    },
+    {
+      "repo": "chuangg/CLEVRER",
+      "path": "executor/run_oe.py",
+      "url": "https://raw.githubusercontent.com/chuangg/CLEVRER/98b842082ba4f7c18b6b9e3f39145871782a65ef/executor/run_oe.py",
+      "sha256": "11572e22d09e7e39dc7235b51bc2be5016e36284ee0460018bc2d523082bd014",
+      "bytes": 1723
+    },
+    {
+      "repo": "facebookresearch/projectaria_tools",
+      "path": "projectaria_tools/projects/adt/utils.py",
+      "url": "https://raw.githubusercontent.com/facebookresearch/projectaria_tools/54fdff0b79caa94513b13265c6dd8e29ba664359/projectaria_tools/projects/adt/utils.py",
+      "sha256": "095087208dceba86e11873f0602ef67226e31bf09179c36ad6ad0267ff0317c7",
+      "bytes": 12094
+    },
+    {
+      "repo": "thodan/bop_toolkit",
+      "path": "bop_toolkit_lib/dataset_params.py",
+      "url": "https://raw.githubusercontent.com/thodan/bop_toolkit/cea62d651c7e395b2e1962b9749e4e89693c6ac4/bop_toolkit_lib/dataset_params.py",
+      "sha256": "a935fc4f6fd42f367a0bbf816036f783fb4c5d87200a8615ce1e08e6d51af05e",
+      "bytes": 32303
+    },
+    {
+      "repo": "llyx97/TempCompass",
+      "path": "prompt_templates.py",
+      "url": "https://raw.githubusercontent.com/llyx97/TempCompass/e1b463166400633e6061962d890a9ae85db29f70/prompt_templates.py",
+      "sha256": "ba08b16acff1702f13a4604e06e5290ac216a026d1d7c39a29f25f119e463df5",
+      "bytes": 7337
+    }
+  ],
+  "huggingface_datasets": [
+    {
+      "repo": "everex/MVVBench",
+      "commit": "614331fd5a9f4543e5e59a36035d90e55c872b47",
+      "files": [
+        ".gitattributes",
+        "README.md",
+        "all_questions.json",
+        "all_questions.parquet",
+        "prepare_videos.py",
+        "video_mapping.csv"
+      ]
+    },
+    {
+      "repo": "flow666/MLLM-4D-Datasets",
+      "commit": "80c03a70c2d2cbe1088ee530ebfb4c512c7bd8f2",
+      "files": [
+        ".gitattributes",
+        "MLLM-4D_test_videos.zip",
+        "MLLM-4D_train_videos.zip.partaa",
+        "MLLM-4D_train_videos.zip.partab",
+        "MLLM-4D_train_videos.zip.partac",
+        "MLLM-4D_train_videos.zip.partad",
+        "MLLM-4D_train_videos.zip.partae",
+        "MLLM4D-2M.json",
+        "MLLM4D-Cold-Start-Data.json",
+        "MLLM4D-R1-30k.jsonl",
+        "README.md"
+      ]
+    }
+  ],
+  "project_pages": [
+    {
+      "benchmark": "DA4D / DetAny4D",
+      "url": "https://jarvishou829.github.io/DA4D/",
+      "observed_code_label": "Code(Soon)"
+    },
+    {
+      "benchmark": "ADT",
+      "url": "https://eval.ai/web/challenges/challenge-page/2093/evaluation",
+      "observation": "Documents the local challenge scorer and example invocation."
+    }
+  ]
+}
