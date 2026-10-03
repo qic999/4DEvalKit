@@ -18,6 +18,12 @@ Physion OCP also completed real geometry inference and the official logistic rea
 
 ## Full evaluations
 
+Completed full-split results (same checkpoint/reasoner as above):
+
+| Benchmark | Observation mode | Valid answers / full split | Score (%) |
+|---|---|---:|---:|
+| TempCompass | Boxes | 1,580 / 1,580 | 42.41 |
+
 - **Running:** TempCompass (1,580 QA), 4D-Bench (751 QA), MotionBench labeled DEV (4,018 QA / 2,706 clips), all three observation modes. Seven GPU workers; complete-video sharding and prediction reuse across questions.
 - **Queued after those runs:** CLEVRER validation, all 5,000 videos and 125,852 descriptive/candidate answer records, all three modes.
 - **Physion full OCP running:** all 5,608 readout-training clips and 1,035 test clips are prepared. The complete box-feature/readout evaluation is running on GPU 7. Queue status: `results/additional_4d_20261002/physion_queue.json`.
@@ -46,7 +52,7 @@ Local run roots: `results/additional_4d_20261002/{smoke,mvv_smoke,physion_smoke,
 
 ## Verification
 
-- The complete repository test suite passed: 116 tests, including decoder recovery.
+- The complete repository test suite passed: 123 tests, including decoder recovery and official Physion short-video clipping.
 - Official MotionBench scoring exactly matches the real 12-item box-mode result.
 - TempCompass matching and 4D-Bench parsing agree with upstream on tested edge cases.
 - ADT, TAPVid-3D and V-STaR scorer fixtures are **synthetic metric checks**, not checkpoint evaluations.
@@ -56,3 +62,8 @@ Local run roots: `results/additional_4d_20261002/{smoke,mvv_smoke,physion_smoke,
 [Machine-readable evidence](runtime.json) · [Usage](../../docs/additional_4d_evaluation.md) · [Pinned upstream sources](../upstream_eval_audit_20261002/manifest.json)
 
 MotionBench full-run decoding recovery: some released containers overstate their frame count. The reader now falls back to two-pass PyAV decoding and actual presentation timestamps, recording both declared and decoded frame counts. Three previously failing clips recovered all 16 requested observations; no questions were removed.
+
+Physion full-run sampling recovery: the official MP4 loader clips OCP sample
+indices to the last available frame. Preparation now checks decoded prefixes
+and preserves this clipping, including repeated readout feature slots. Earlier
+valid predictions remain reusable; short clips are retained in the evaluation.

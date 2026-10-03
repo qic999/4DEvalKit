@@ -71,6 +71,9 @@ compare the category metrics, not this aggregate, with published CLEVRER tables.
 This workflow evaluates frozen **predicted box features** with the official
 logistic readout, separately from LLM reasoning. Its OCP observations follow the
 official `frame_gap=150` schedule: frames 0/15/30/45, or 0/0/0/15 for collisions.
+As in the official MP4 loader, requested indices beyond a short video's end
+are clipped to its final decoded frame. Geometry is inferred once per distinct
+observed frame; the four readout feature slots preserve repeated indices.
 Repeated initial observations are reproduced in the exported feature tensor.
 No future contact time or test label selects encoder frames. OCD is not included.
 

@@ -8,6 +8,7 @@ import argparse
 import ast
 from concurrent.futures import ThreadPoolExecutor
 import json
+from itertools import islice
 from pathlib import Path
 import zipfile
 
@@ -21,6 +22,53 @@ def scenario(name):
     keys=[k for k in SCENARIOS if k in name and (k!='collision' or 'roll' not in name)]
     if len(keys)!=1:raise ValueError(f'Ambiguous Physion scenario: {name}')
     return keys[0]
+
+
+def ocp_frame_indices(name, num_frames):
+    """Match the official MP4 loader's clip-to-last-frame and left padding."""
+    if num_frames < 1:
+        raise ValueError('Physion video contains no decoded frames')
+    requested = [0, 0, 0, 15] if 'collision' in name and 'roll' not in name else [0, 15, 30, 45]
+    return [min(index, num_frames - 1) for index in requested]
+
+
+def decoded_ocp_schedule(path, name):
+    import av
+    # Only the public OCP prefix is needed. Counting up to its cutoff produces
+    # the same clipped indices as counting the entire video, without later GT.
+    cutoff = 15 if 'collision' in name and 'roll' not in name else 45
+    with av.open(str(path)) as container:
+        count = sum(1 for _ in islice(container.decode(video=0), cutoff + 1))
+    return ocp_frame_indices(name, count)
+
+
+def refresh_frame_schedule(output, workers=8):
+    """Repair prepared schedules; retain IDs, labels and unaffected cache inputs."""
+    out = Path(output)
+    changes = []
+    for split in ['train', 'test']:
+        manifest_path = out/split/'manifest.json'
+        scoring_path = out/split/'scoring.json'
+        manifest = json.loads(manifest_path.read_text())
+        scoring = json.loads(scoring_path.read_text())
+        by_id = {row['sample_id']: row for row in scoring}
+        def schedule(row):
+            return decoded_ocp_schedule(row['media']['video']['path'], row['source_id'])
+        with ThreadPoolExecutor(workers) as pool:
+            schedules = list(pool.map(schedule, manifest['samples']))
+        for row, indices in zip(manifest['samples'], schedules):
+            score = by_id[row['sample_id']]
+            old = score['feature_frame_indices']
+            if old != indices:
+                changes.append(dict(split=split, sample_id=row['sample_id'],
+                    source_id=row['source_id'], previous=old, corrected=indices))
+            row['input_metadata']['frame_indices'] = list(dict.fromkeys(indices))
+            score['feature_frame_indices'] = indices
+        write_json(manifest_path, manifest)
+        write_json(scoring_path, scoring)
+    write_json(out/'frame_schedule_recovery.json', dict(
+        protocol='official_physion_ocp_clip_and_left_pad', changes=changes))
+    return changes
 
 
 def prepare(root, output, loader_source, train_count=None, test_count=None, archive=None):
@@ -56,15 +104,19 @@ def prepare(root, output, loader_source, train_count=None, test_count=None, arch
             path.parent.mkdir(parents=True,exist_ok=True);path.write_bytes(data)
         return str(path.resolve())
     with ThreadPoolExecutor(8) as workers: paths=dict(zip(todo,workers.map(fetch,todo)))
+    with ThreadPoolExecutor(8) as workers:
+        schedules=dict(zip(todo,workers.map(
+            lambda item: decoded_ocp_schedule(paths[item], item[1]), todo)))
     for split,names in selections.items():
         samples=[];scoring=[]
         for i,name in enumerate(names):
-            indices=[0,15] if 'collision' in name and 'roll' not in name else [0,15,30,45]
+            feature_indices=schedules[split,name]
+            indices=list(dict.fromkeys(feature_indices))
             sample_id=f'physion_{split}:{i}'
             samples.append(dict(sample_id=sample_id,source_id=name,question='Physical scene observations.',
                 media={'video':{'path':paths[split,name]}},input_metadata={'frame_indices':indices}))
             scoring.append(dict(sample_id=sample_id,name=name,scenario=scenario(name),
-                label=labels[split][name]['label'],feature_frame_indices=[0,0,0,15] if len(indices)==2 else indices))
+                label=labels[split][name]['label'],feature_frame_indices=feature_indices))
         write_json(out/split/'manifest.json',dict(samples=samples,num_samples=len(samples),
             protocol='physion_ocp_frame_gap150_box_features_v1',split=split,
             subset_per_scenario=train_count if split=='train' else test_count,

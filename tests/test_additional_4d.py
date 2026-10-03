@@ -94,6 +94,22 @@ def test_physion_fixed_features_preserve_repeated_initial_observation():
     assert np.isfinite(box_features({},[0,15,30,45])).all()
 
 
+@pytest.mark.parametrize('name,count,expected', [
+    ('pilot_drop', 100, [0,15,30,45]),
+    ('pilot_drop', 42, [0,15,30,41]),
+    ('pilot_drop', 12, [0,11,11,11]),
+    ('pilot_collision', 100, [0,0,0,15]),
+    ('pilot_collision', 8, [0,0,0,7]),
+    ('pilot_rolling_collision', 42, [0,15,30,41]),
+    ('pilot_drop', 1, [0,0,0,0]),
+])
+def test_physion_short_video_matches_official_clipping(name,count,expected):
+    from scripts.prepare_physion import ocp_frame_indices
+    assert ocp_frame_indices(name,count)==expected
+    with pytest.raises(ValueError,match='no decoded frames'):
+        ocp_frame_indices(name,0)
+
+
 def test_video_seek_failure_uses_actual_frames_and_pts(tmp_path,monkeypatch):
     import av
     import numpy as np

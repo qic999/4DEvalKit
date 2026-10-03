@@ -1,0 +1,141 @@
+{
+  "protocol": "official_physion_ocp_clip_and_left_pad",
+  "changes": [
+    {
+      "split": "train",
+      "sample_id": "physion_train:1253",
+      "source_id": "pilot_it2_drop_simple_box_0154",
+      "previous": [
+        0,
+        15,
+        30,
+        45
+      ],
+      "corrected": [
+        0,
+        15,
+        30,
+        41
+      ]
+    },
+    {
+      "split": "train",
+      "sample_id": "physion_train:1275",
+      "source_id": "pilot_it2_drop_simple_box_0231",
+      "previous": [
+        0,
+        15,
+        30,
+        45
+      ],
+      "corrected": [
+        0,
+        15,
+        30,
+        41
+      ]
+    },
+    {
+      "split": "train",
+      "sample_id": "physion_train:1309",
+      "source_id": "pilot_it2_drop_simple_box_0342",
+      "previous": [
+        0,
+        15,
+        30,
+        45
+      ],
+      "corrected": [
+        0,
+        15,
+        30,
+        41
+      ]
+    },
+    {
+      "split": "train",
+      "sample_id": "physion_train:1311",
+      "source_id": "pilot_it2_drop_simple_box_0354",
+      "previous": [
+        0,
+        15,
+        30,
+        45
+      ],
+      "corrected": [
+        0,
+        15,
+        30,
+        41
+      ]
+    },
+    {
+      "split": "train",
+      "sample_id": "physion_train:1330",
+      "source_id": "pilot_it2_drop_simple_tdw_1_dis_1_occ_0046",
+      "previous": [
+        0,
+        15,
+        30,
+        45
+      ],
+      "corrected": [
+        0,
+        15,
+        30,
+        41
+      ]
+    },
+    {
+      "split": "train",
+      "sample_id": "physion_train:1378",
+      "source_id": "pilot_it2_drop_simple_tdw_1_dis_1_occ_0201",
+      "previous": [
+        0,
+        15,
+        30,
+        45
+      ],
+      "corrected": [
+        0,
+        15,
+        30,
+        41
+      ]
+    },
+    {
+      "split": "test",
+      "sample_id": "physion_test:196",
+      "source_id": "pilot_it2_drop_simple_box_0018",
+      "previous": [
+        0,
+        15,
+        30,
+        45
+      ],
+      "corrected": [
+        0,
+        15,
+        30,
+        41
+      ]
+    },
+    {
+      "split": "test",
+      "sample_id": "physion_test:210",
+      "source_id": "pilot_it2_drop_simple_tdw_1_dis_1_occ_0001",
+      "previous": [
+        0,
+        15,
+        30,
+        45
+      ],
+      "corrected": [
+        0,
+        15,
+        30,
+        41
+      ]
+    }
+  ]
+}
