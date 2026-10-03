@@ -8,10 +8,10 @@ from RGB, geometry, captions, or combinations of these inputs.
 |---|---|---|---|
 | [3D Perception](#3d-perception) | **Integrated:** ScanNet; Argoverse 2; Omni3D (**KITTI, nuScenes, SUNRGBD, Hypersim, ARKitScenes, Objectron**); WildDet3D-Bench | Uses the pinned WildDet3D evaluator; see [scoring setup](docs/perception_evaluation.md). | Direct, box-conditioned 3D regression: canonical ODS, oriented 3D IoU AP, and center-distance AP. |
 | [3D Reasoning](#3d-reasoning) | **Integrated:** BLINK (spatial subset); CV-Bench; 3DSRBench; EmbSpatial-Bench; Q-Spatial-Bench; MindCube; MMSI-Bench; ViewSpatial-Bench; VSI-Bench; SAT | Benchmark-specific scoring adapters; see [metric protocols](docs/metric_protocols.md). | Spatial QA on images, multiple views, static-scene videos, and action-conditioned questions. |
-| [4D Perception](#4d-perception) | **Model evaluation:** Stereo4D (**383 independent frames**).<br>**Scorer interfaces:** ADT; TAPVid-3D.<br>**External evaluator launchers:** HOT3D / BOP; nuScenes Tracking.<br>**Pending data/output integration:** HOI4D; DA4D / DetAny4D. | ADT and TAPVid-3D numerical functions have executed on boundary fixtures. HOT3D / nuScenes launchers require native predictions and dataset GT. [Setup and limits](docs/additional_4d_evaluation.md#perception-and-grounding-scorers). | Per-frame box AP; pose and queried-point metrics through separate native prediction formats. A scorer fixture is not a model evaluation. |
-| [4D Reasoning](#4d-reasoning) | **Integrated:** STI-Bench; VLM4D (**real_mc, synthetic_mc**); DSI-Bench (**std, all augmentations**); MotionBench (**labeled DEV**); TempCompass (**MC**); CLEVRER (**validation**); 4D-Bench (**QA**); MVVBench; Physion V1.5 (**OCP box-feature readout**).<br>**Grounding scorer only:** V-STaR.<br>**Awaiting independent QA labels:** MLLM4D-Bench. | MotionBench, TempCompass and 4D-Bench scoring checked against upstream code. CLEVRER retains option/question metrics; MVVBench uses a local exact-choice scorer; Physion invokes the official readout. [Runtime coverage](reports/additional_4d_20261002/comparison.md). | Motion, temporal order, causal/counterfactual QA, multiview video QA, and physical contact prediction. Added model workflows have real smoke runs; full-run status and subset sizes are reported separately. |
+| [4D Perception](#4d-perception) | **Model evaluation completed:** Stereo4D (**383 independent frames**).<br>**Official scorers verified on synthetic fixtures:** ADT; TAPVid-3D.<br>**Official evaluator launchers integrated:** HOT3D / BOP; nuScenes Tracking.<br>**Submission interface inspected:** HOI4D Object Tracking.<br>**Awaiting evaluation release:** DA4D / DetAny4D. | ADT needs held-out GT and object-frame pose predictions; TAPVid-3D needs queried point trajectories and visibility. HOT3D / nuScenes require native predictions, GT and upstream environments. HOI4D has no released local tracking scorer in the inspected repository. [Setup and limits](docs/additional_4d_evaluation.md#perception-and-grounding-scorers). | Stereo4D measures per-frame 3D box AP. Additional pose, point-trajectory and tracking interfaces require their native output formats; their complete model evaluations remain pending. |
+| [4D Reasoning](#4d-reasoning) | **Integrated:** STI-Bench; VLM4D (**real_mc, synthetic_mc**); DSI-Bench (**std, all augmentations**).<br>**Smoke passed; full suite running:** MotionBench (**labeled DEV, 4,018 QA**); TempCompass (**MC, 1,580 QA**); 4D-Bench (**751 QA**); Physion V1.5 (**OCP, 5,608 readout-training / 1,035 test clips**).<br>**Smoke passed; full run queued:** CLEVRER (**validation, 5,000 videos**).<br>**Smoke passed; remaining source videos needed:** MVVBench.<br>**Grounding scorer verified on fixtures:** V-STaR.<br>**Awaiting independent QA labels:** MLLM4D-Bench. | MotionBench, TempCompass and 4D-Bench scoring checked against upstream code. CLEVRER retains option/question metrics; MVVBench uses a local exact-choice scorer; Physion invokes the official readout. V-STaR still needs actual grounding predictions and its semantic judge. [Runtime coverage](reports/additional_4d_20261002/comparison.md). | Motion, temporal order, causal/counterfactual QA, multiview video QA, and physical contact prediction. All five added QA workflows passed real model smoke tests in **boxes / RGB / RGB + boxes** modes; Physion passed a separate box-feature OCP readout. Full benchmark scores are still pending. |
 
-**Integrated** means the model/data/scoring workflow exists. The
+Run status above was checked on **2026-10-02**. **Integrated** means the model/data/scoring workflow exists; **smoke passed** means it completed on an explicitly recorded small subset. The
 [runtime report](reports/additional_4d_20261002/comparison.md) distinguishes
 real model smoke tests, full evaluations, numerical scorer fixtures, and
 unresolved data or output requirements. Official source availability alone
@@ -163,8 +163,8 @@ contact, and robot state may require additional observations. See the
 
 The current dynamic-scene perception evaluation uses **Stereo4D: 383 independent
 frames**, scored with center-distance AP and rare/common/frequent category AP.
-It measures per-frame 3D geometry in dynamic scenes. Cross-frame identity,
-trajectory accuracy, and temporal consistency metrics are **not implemented**.
+It measures per-frame 3D geometry in dynamic scenes. This Stereo4D workflow does
+not score cross-frame identity, trajectory accuracy, or temporal consistency.
 
 Download the original released images and prepare the manifest:
 
@@ -189,9 +189,12 @@ timestamped boxes, stable object slots, and predicted camera poses for downstrea
 reasoning. Exporting tracks is distinct from evaluating them against temporal
 ground truth. Its first-frame proposal strategy can miss objects entering later.
 
-Candidate temporal evaluations include ADT, HOI4D, HOT3D, and nuScenes Tracking.
-See [4D perception candidates](docs/4d_benchmark_survey.md#4d-perception-candidates)
-for ground-truth availability, metrics, and required protocol changes.
+For temporal perception, ADT and TAPVid-3D have verified official numerical
+scorers, while HOT3D / BOP and nuScenes Tracking have official evaluator
+launchers. Follow the [native-format scorer setup](docs/additional_4d_evaluation.md#perception-and-grounding-scorers)
+for required predictions and ground truth. Their complete model evaluations,
+HOI4D submission integration, and the DA4D evaluation release remain pending;
+see the [coverage report](reports/additional_4d_20261002/comparison.md#coverage-of-all-14-additions).
 For WDS518 e100, the project owner confirms that earlier ADT training used the
 same sequences as the WDS stage; HOI4D evaluation adopts the project assumption
 that its test set was unseen during training. See the
