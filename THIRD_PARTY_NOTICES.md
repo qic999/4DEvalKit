@@ -27,6 +27,20 @@ Dynamic annotation sources:
 - [STI-Bench](https://mint-sjtu.github.io/STI-Bench.io/), [dataset](https://huggingface.co/datasets/MINT-SJTU/STI-Bench)
 - [VLM4D](https://vlm4d.github.io/), [dataset](https://huggingface.co/datasets/shijiezhou/VLM4D)
 - [DSI-Bench](https://dsibench.github.io/), [dataset](https://huggingface.co/datasets/Viglong/DSI-Bench)
+- [MotionBench](https://github.com/zai-org/MotionBench), [dataset](https://huggingface.co/datasets/THUDM/MotionBench)
+- [TempCompass](https://github.com/llyx97/TempCompass)
+- [CLEVRER](https://github.com/chuangg/CLEVRER)
+- [4D-Bench](https://github.com/WenxuanZhu1103/4D-Bench)
+- [MVVBench](https://huggingface.co/datasets/everex/MVVBench)
+
+The additional numerical scorer interfaces fetch exact upstream files recorded
+in [the audit manifest](reports/upstream_eval_audit_20261002/manifest.json):
+Meta Project Aria (Apache-2.0), Google TAPNet (Apache-2.0), V-STaR, and the
+Physion evaluator (MIT). Original notices remain in downloaded sources under
+the ignored `external` directory. The code selects unchanged numerical
+functions to avoid unrelated visualization or judge-model initialization.
+The HOT3D/BOP and nuScenes launchers require separately installed upstream
+repositories. No upstream dataset or model weights are distributed here.
 
 The deterministic dynamic MCQ runner is new code. In particular, VLM4D's direct-choice
 scoring is explicitly distinguished from the authors' free-text/judge protocol.

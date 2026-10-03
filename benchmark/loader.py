@@ -55,7 +55,7 @@ class LegacyVSI:
 
 
 def make_adapter(spec, data, split, model_name):
-    prefix = "benchmark" if spec.module == "dynamic" else "benchmark.physbrain"
+    prefix = "benchmark" if spec.module in {"dynamic", "temporal"} else "benchmark.physbrain"
     module = importlib.import_module(f"{prefix}.{spec.module}")
     cls = getattr(module, spec.class_name)
     available = inspect.signature(cls).parameters
@@ -66,7 +66,7 @@ def make_adapter(spec, data, split, model_name):
     if spec.name in {"CV-Bench", "SAT"}:
         kwargs["subset"] = "default"
     return cls(**{key:value for key,value in kwargs.items()
-                  if key in available or spec.module == "dynamic"})
+                  if key in available or spec.module in {"dynamic", "temporal"}})
 
 
 def load_local_generic(path, split):
@@ -116,7 +116,7 @@ class BenchmarkSession:
                 if not files:
                     raise FileNotFoundError(f'No {subset}/{self.split} parquet shards under {p}')
                 self.raw.extend(load_dataset('parquet', data_files=[str(f) for f in files], split='train'))
-        elif spec.module == "dynamic" or spec.module in {"threedsrbench", "mindcube", "viewspatial", "mmsi_bench", "erqa_plus", "roborefit", "robovqa", "vlabench"}:
+        elif spec.module in {"dynamic", "temporal", "threedsrbench", "mindcube", "viewspatial", "mmsi_bench", "erqa_plus", "roborefit", "robovqa", "vlabench"}:
             self.raw = self.adapter.load_dataset()
         elif p.exists() and spec.module not in {"blink", "robospatial", "refspatial"}:
             self.raw = load_local_generic(p, self.split)
@@ -131,10 +131,15 @@ class BenchmarkSession:
                 raise ValueError("--dataset filters VSI-Bench scene sources only")
             self.indices = [i for i in self.indices if self.raw[i].get("dataset") in allowed]
         self.available_count = len(self.indices)
+        if spec.module == 'temporal':
+            self.available_count = max(self.available_count, getattr(self.adapter, 'source_available_count', 0))
         if limit is not None:
             if limit <= 0:
                 raise ValueError("--limit must be positive")
             self.indices = self.indices[:limit]
+            if spec.name == "CLEVRER":
+                groups = {self.raw[i]['group_id'] for i in self.indices}
+                self.indices = [i for i in range(len(self.raw)) if self.raw[i]['group_id'] in groups]
             if spec.name == "3DSRBench":
                 # Do not turn circular evaluation into easier single-variant QA.
                 base = self.adapter._base_qid
@@ -149,6 +154,8 @@ class BenchmarkSession:
         self.protocol = ("vlm4d_direct_choice_v1" if spec.name == "VLM4D" else
                          "dynamic_direct_choice_v1" if spec.module == "dynamic" else
                          "physbrain_" + "4b37ca2")
+        if spec.module == 'temporal':
+            self.protocol = self.adapter.protocol
 
     def batches(self):
         random.seed(self.seed)
@@ -191,7 +198,7 @@ def media_manifest(example, export_media_dir=None):
     sample = example["sample"]
     meta = sample["metadata"]
     public = {key: meta[key] for key in ["scene_name", "video_path", "image_path", "image_paths", "num_images",
-             "time_start", "time_end", "augmentation"] if meta.get(key) is not None}
+             "time_start", "time_end", "augmentation", "view_ids"] if meta.get(key) is not None}
     def describe(value):
         if isinstance(value, (str, Path)):
             return {"path": str(value)}

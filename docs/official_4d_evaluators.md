@@ -1,5 +1,10 @@
 # Official evaluation code for the additional 4D benchmarks
 
+**Runtime follow-up:** the [integration guide](additional_4d_evaluation.md) and
+[executed-run report](../reports/additional_4d_20261002/comparison.md) supersede
+the implementation-status column below. This document preserves the earlier
+source audit; its "work needed" entries describe the state at that audit.
+
 Checked **2026-10-02** against official repository file trees and scorer source
 code. Of the 14 candidates, **10 have task-relevant scoring implementations**;
 MLLM-4D also has a scorer, with the independent MLLM4D-Bench QA release still

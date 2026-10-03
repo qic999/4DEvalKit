@@ -1,0 +1,26 @@
+[
+  {
+    "repo": "THUDM/MotionBench",
+    "sha": "f099db892172a015c489507c9abe56b036d960ef"
+  },
+  {
+    "repo": "V-STaR-Bench/V-STaR",
+    "sha": "d938778037a2c39001039dd54bebdef72fedb2db"
+  },
+  {
+    "repo": "projectaria/aria-digital-twin",
+    "sha": "81dc06e13223fd9740327d48bdc7d3f10bc8144c"
+  },
+  {
+    "repo": "lmms-lab/TempCompass",
+    "sha": "c8a67d88a3bc6fd4b2f9ae2f9e112668fbe05722"
+  },
+  {
+    "repo": "everex/MVVBench",
+    "sha": "614331fd5a9f4543e5e59a36035d90e55c872b47"
+  },
+  {
+    "repo": "vxuanz/4D-Bench",
+    "sha": "c3b799ddac9c21db0690ad964c1e82a42c892744"
+  }
+]

@@ -55,6 +55,11 @@ _ROWS = [
     ("STI-Bench", "dynamic", "DynamicDataset", "MINT-SJTU/STI-Bench", "train", "dynamic", "overall_accuracy", 100, "core"),
     ("VLM4D", "dynamic", "DynamicDataset", "shijiezhou/VLM4D", "real_mc", "dynamic", "overall_accuracy", 100, "core"),
     ("DSI-Bench", "dynamic", "DynamicDataset", "Viglong/DSI-Bench", "std", "dynamic", "overall_accuracy", 100, "extension"),
+    ("MotionBench", "temporal", "TemporalDataset", "THUDM/MotionBench", "dev", "dynamic", "overall_accuracy", 100, "core"),
+    ("TempCompass", "temporal", "TemporalDataset", "lmms-lab/TempCompass", "test", "dynamic", "overall_accuracy", 100, "core"),
+    ("CLEVRER", "temporal", "TemporalDataset", "CLEVRER", "validation", "dynamic", "overall_question_accuracy", 100, "extension"),
+    ("4D-Bench", "temporal", "TemporalDataset", "vxuanz/4D-Bench", "qa", "dynamic_multiview", "overall_accuracy", 100, "core"),
+    ("MVVBench", "temporal", "TemporalDataset", "everex/MVVBench", "test", "dynamic_multiview", "overall_accuracy", 100, "extension"),
 ]
 BENCHMARKS = {row[0]: BenchmarkSpec(*row) for row in _ROWS}
 ALIASES = {"vsibench": "VSI-Bench", "qspatial": "Q-Spatial-Bench",

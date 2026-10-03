@@ -1,0 +1,5 @@
+-r requirements.txt
+einops>=0.8,<0.9
+h5py>=3.12,<4
+scikit-learn>=1.6,<1.8
+jsonlines>=4,<5

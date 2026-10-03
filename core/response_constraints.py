@@ -29,6 +29,11 @@ def response_constraint(benchmark, question, public_choices=None):
         return {'choice': letters}
     if benchmark == 'VSI-Bench':
         return {'regex': NUMBER}
+    if benchmark == 'CLEVRER':
+        # Dataset-wide public descriptive vocabulary; never infer from GT.
+        return {'choice': ['yes', 'no', 'red', 'blue', 'green', 'yellow', 'purple',
+                           'cyan', 'gray', 'brown', 'metal', 'rubber', 'cube',
+                           'sphere', 'cylinder'] + [str(i) for i in range(11)]}
     raise ValueError(f'No supported public answer format for {benchmark}')
 
 

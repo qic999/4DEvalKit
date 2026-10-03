@@ -52,3 +52,16 @@
 建议主表按五组展示：静态单图、静态多视图、静态视频、动作条件空间推理、真实/合成动态。至少保留 Full / Small、predicted 3D / GT 3D oracle、2D boxes / no observations 对照。VLM 的 RGB-only 和 RGB+boxes baseline 可另行产生原生输出后重评分。Grounding 和生成轨迹用独立扩展表，避免一个 overall 掩盖输入信息差异。
 
 执行用数据源和 split 以 [registry](../scripts/benchmark_registry.py) 为准；评分细节见 [metric_protocols.md](metric_protocols.md)。
+
+## Added executable 4D workflows
+
+| Benchmark | Interface | Scoring protocol |
+|---|---|---|
+| MotionBench DEV | `eval.py --benchmark MotionBench` | Labeled DEV exact choice; full denominator |
+| TempCompass MC | `eval.py --benchmark TempCompass` | Upstream disable-LLM answer matching |
+| CLEVRER validation | `eval.py --benchmark CLEVRER` | Descriptive, per-option and whole-question accuracy |
+| 4D-Bench QA | `eval.py --benchmark 4D-Bench` | Three ordered camera videos, exact option scoring |
+| MVVBench | `eval.py --benchmark MVVBench` | Local exact choice, category/static/dynamic breakdowns |
+| Physion OCP | `scripts.run_physion_box_readout` | Frozen predicted-box features and official linear readout |
+
+See [usage](additional_4d_evaluation.md) and [actual runtime coverage](../reports/additional_4d_20261002/comparison.md). Scorer-only interfaces and remaining data/output requirements are recorded separately.

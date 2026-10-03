@@ -27,8 +27,21 @@ def read_frames(row, video_frames=16, *, read_attempts=3):
         return [Image.open(p).convert('RGB') for p in paths], [
             {'path': str(Path(p).resolve()), 'view_id': f'view_{i}'} for i,p in enumerate(paths)]
     paths = flatten_media(media['video'])
+    meta = row.get('input_metadata', {})
     if len(paths) != 1:
-        raise ValueError('Expected one encoded video per question')
+        views = meta.get('view_ids')
+        if not views or len(views) != len(paths) or len(set(views)) != len(views):
+            raise ValueError('Multiple videos require ordered, unique view_ids')
+        images, frames = [], []
+        for path, view in zip(paths, views):
+            part = dict(row, media={'video': {'path': path}}, input_metadata={
+                k:v for k,v in meta.items() if k != 'view_ids'})
+            part_images, part_frames = read_frames(part, video_frames, read_attempts=read_attempts)
+            for frame in part_frames:
+                frame['camera_id'] = str(view)
+                frame['view_id'] = f"camera_{view}/frame_{frame['frame_index']}"
+            images.extend(part_images); frames.extend(part_frames)
+        return images, frames
     import cv2
     for attempt in range(read_attempts):
         try:
@@ -66,6 +79,11 @@ def _read_video(path, meta, video_frames):
         if stop < start:
             raise ValueError('Requested time interval is outside the video')
         indices = np.unique(np.linspace(start, stop, min(video_frames, stop-start+1)).round().astype(int))
+        if 'frame_indices' in meta:
+            indices = np.asarray(meta['frame_indices'])
+            if (indices.ndim != 1 or not len(indices) or not np.issubdtype(indices.dtype, np.integer)
+                    or np.any(indices < 0) or np.any(indices >= total) or np.any(np.diff(indices) <= 0)):
+                raise ValueError('Explicit frame_indices must be increasing, unique, valid integers')
         images, frames = [], []
         for index in indices:
             cap.set(cv2.CAP_PROP_POS_FRAMES, int(index))

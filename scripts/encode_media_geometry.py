@@ -21,6 +21,8 @@ from scripts.media_inputs import read_frames
 
 
 def make_datapoint(images, frames, record, native, *, resolution=1024, spatial_resolution=504):
+    if len({f.get('camera_id') for f in frames}) > 1:
+        raise ValueError('Encode each camera separately; do not concatenate camera videos into one track')
     import torch
     from sam3.train.data.sam3_image_dataset import Datapoint, Image as ModelImage
     from inference_gt2d.open_vocab_slots import apply_open_vocab_slots
@@ -128,6 +130,23 @@ def scene_from_stages(stages, payload, frames, native, provenance, metric_scale=
     return normalize_scene(scene), {'invalid_box_observations': invalid, 'raw_observations': raw}
 
 
+def combine_camera_scenes(parts, provenance):
+    """Keep camera gauges independent; retain time and within-camera identity."""
+    views = []
+    for camera_id, scene in parts:
+        by_view = {c['view_id']: dict(view_id=c['view_id'], objects=[],
+                   camera_to_world=c['camera_to_world']) for c in scene.get('cameras', [])}
+        for track in scene.get('tracks', []):
+            for observation in track['observations']:
+                by_view[observation['view_id']]['objects'].append(dict(observation,
+                    instance_id=f"camera_{camera_id}/{track['track_id']}", category=track['category']))
+        views.extend(by_view.values())
+    return normalize_scene({'units': 'm', 'objects': [], 'views': views,
+        'coordinate_frame': 'independent_reference_camera_per_video_x_right_y_down_z_forward',
+        'provenance': dict(provenance, multi_camera_protocol='independent_camera_tracks_v1',
+            cross_camera_alignment='unavailable; coordinates are comparable only within the same camera')})
+
+
 def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('--manifest', required=True)
@@ -201,6 +220,7 @@ def main():
             install_box_only_detector_fusion(model)
         install_tracker_mask_offload(model)
         scenes = {}
+        last_observation_key, last_result = None, None
         for path in records:
             if args.wait_inputs:
                 from scripts.finish_scannet_recovery import process_identity
@@ -214,15 +234,47 @@ def main():
             sample_id = record['sample_id']
             result_path = out/'samples'/(sample_id.replace(':','_')+'.json')
             fingerprint = digest({'proposal': record, 'config': config})
+            observation_key = digest({k:v for k,v in record.items() if k not in {'sample_id','fingerprint'}})
             if result_path.exists():
                 result = read_json(result_path)
                 if result['fingerprint'] != fingerprint:
                     raise ValueError('Input changed since previous geometry inference')
             else:
+                if observation_key == last_observation_key:
+                    result = dict(last_result, sample_id=sample_id, fingerprint=fingerprint)
+                    write_json(result_path, result)
+                    scenes[sample_id] = result['scene']
+                    continue
                 images, frames = read_frames(rows[sample_id], index['config']['video_frames'])
                 if frames != record['frames']:
                     raise ValueError('Media sampling changed since proposal generation')
-                if not record['detections']:
+                camera_proposals = record.get('camera_proposals')
+                if camera_proposals:
+                    parts, diagnostics = [], {}
+                    for proposal in camera_proposals:
+                        camera_id = proposal['camera_id']
+                        selected = [i for i,f in enumerate(frames) if f.get('camera_id') == camera_id]
+                        view_frames = [frames[i] for i in selected]
+                        view_images = [images[i] for i in selected]
+                        if not proposal['detections']:
+                            parts.append((camera_id, {'cameras': [], 'tracks': []}))
+                            diagnostics[camera_id] = {'no_proposals': True}
+                            continue
+                        batch, payload = make_datapoint(view_images, view_frames,
+                            dict(record, **proposal), native, resolution=args.resolution,
+                            spatial_resolution=args.spatial_resolution)
+                        if batch is None:
+                            raise ValueError('All camera proposals rejected by native slot creation')
+                        batch = copy_data_to_device(batch, torch.device('cuda'), non_blocking=True)
+                        with torch.inference_mode(), torch.amp.autocast('cuda', dtype=torch.bfloat16):
+                            output = model(batch, is_inference=True)
+                        stages = native.unwrap_model_output(output)
+                        scene, diag = scene_from_stages(stages, payload, view_frames, native, provenance)
+                        parts.append((camera_id, scene)); diagnostics[camera_id] = diag
+                        del batch, output, stages
+                        torch.cuda.empty_cache()
+                    result = {'scene': combine_camera_scenes(parts, provenance), 'diagnostics': diagnostics}
+                elif not record['detections']:
                     result = {'scene': normalize_scene({'units':'m','coordinate_frame':'camera_x_right_y_down_z_forward',
                               'objects': [], 'provenance': provenance}), 'diagnostics': {'no_proposals': True}}
                 else:
@@ -240,6 +292,7 @@ def main():
                     torch.cuda.empty_cache()
                 result.update(sample_id=sample_id, fingerprint=fingerprint)
                 write_json(result_path, result)
+            last_observation_key, last_result = observation_key, result
             scenes[sample_id] = result['scene']
             write_json(out/'status.json', {'pid': os.getpid(), 'phase': 'encoding', 'completed': len(scenes),
                                           'total': len(records), 'updated': time.time()})

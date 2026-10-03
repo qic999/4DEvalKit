@@ -1,0 +1,28 @@
+{
+  "llm_python": "/path/to/llm/env/bin/python",
+  "llm_model": "/path/to/Qwen3.5-9B/snapshot",
+  "llm_name": "qwen35_9b",
+  "encoder_python": "/path/to/encoder/env/bin/python",
+  "model_repo": "/path/to/spatial_encoder_v2_small",
+  "checkpoint": "/path/to/checkpoint.pt",
+  "profile": "lite",
+  "resolution": 518,
+  "spatial_resolution": 518,
+  "model_image_size": 518,
+  "detector_model": "/path/to/grounding-dino-base/snapshot",
+  "max_objects": 40,
+  "gpus": [0, 1],
+  "reasoner_gpus": [0, 1],
+  "encoding_shards": 2,
+  "base_port": 24000,
+  "max_image_pixels": 262144,
+  "qa_concurrency": 8,
+  "parallel_qa_jobs": 2,
+  "qa_batch_size": 128,
+  "modes": ["boxes", "rgb", "rgb_boxes"],
+  "jobs": [
+    {"benchmark": "TempCompass", "prepared": "data/prepared/TempCompass", "video_frames": 16},
+    {"benchmark": "MotionBench", "prepared": "data/prepared/MotionBench", "video_frames": 16},
+    {"benchmark": "4D-Bench", "prepared": "data/prepared/4D-Bench", "video_frames": 6}
+  ]
+}
