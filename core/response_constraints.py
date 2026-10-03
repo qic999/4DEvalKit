@@ -24,7 +24,11 @@ def response_constraint(benchmark, question, public_choices=None):
     if not letters:
         letters = sorted(set(re.findall(r'(?<![A-Za-z0-9])([A-Z])[.:)]\s+', question)))
     if letters:
-        if len(letters) < 2 or letters != [chr(65+i) for i in range(len(letters))]:
+        # MotionBench's released DEV includes a question with only option A.
+        # Keep that source row and constrain to its public option; never infer
+        # missing distractors or consult its answer annotation.
+        minimum = 1 if benchmark == 'MotionBench' else 2
+        if len(letters) < minimum or letters != [chr(65+i) for i in range(len(letters))]:
             raise ValueError('Cannot infer a contiguous public option list')
         return {'choice': letters}
     if benchmark == 'VSI-Bench':

@@ -20,24 +20,26 @@ Physion OCP also completed real geometry inference and the official logistic rea
 
 Completed full-split results (same checkpoint/reasoner as above):
 
-| Benchmark | Observation mode | Valid answers / full split | Score (%) |
-|---|---|---:|---:|
-| TempCompass | Boxes | 1,580 / 1,580 | 42.41 |
+| Benchmark | Valid answers per mode / full split | Boxes (%) | RGB (%) | RGB + boxes (%) |
+|---|---:|---:|---:|---:|
+| TempCompass | 1,580 / 1,580 | 42.41 | 69.87 | 70.38 |
+| 4D-Bench | 751 / 751 | 34.62 | 66.31 | 66.05 |
 
-- **Running:** TempCompass (1,580 QA), 4D-Bench (751 QA), MotionBench labeled DEV (4,018 QA / 2,706 clips), all three observation modes. Seven GPU workers; complete-video sharding and prediction reuse across questions.
+- **Complete:** TempCompass and 4D-Bench, all three observation modes. Every answer passed coverage, syntax and non-truncation checks.
+- **Resuming:** MotionBench labeled DEV (4,018 QA / 2,706 clips), all three observation modes. The release contains one single-option question; the parser now accepts its public option without dropping the question or changing labels. Each mode retained 1,920 valid answers at recovery launch. All 4,018 geometry predictions are complete. Seven GPU reasoners; recovery status: `results/additional_4d_20261002/motionbench_recovery/status.json`.
 - **Queued after those runs:** CLEVRER validation, all 5,000 videos and 125,852 descriptive/candidate answer records, all three modes.
 - **Physion full OCP running:** all 5,608 readout-training clips and 1,035 test clips are prepared. The complete box-feature/readout evaluation is running on GPU 7. Queue status: `results/additional_4d_20261002/physion_queue.json`.
 - **MVVBench full split:** still needs the remaining EgoExo4D, MMPTRACK and Panoptic source videos. Only the explicit Panoptic smoke subset has been executed.
 
-Local run roots: `results/additional_4d_20261002/{smoke,mvv_smoke,physion_smoke,full,clevrer_full,physion_full}`. Queue status: `results/additional_4d_20261002/clevrer_queue.json`. The full-run state is live in `status.json`; this report does not invent pending scores.
+Local run roots: `results/additional_4d_20261002/{smoke,mvv_smoke,physion_smoke,full,motionbench_recovery,clevrer_full,physion_full}`. MotionBench recovery reuses its original geometry and QA journals under `full/MotionBench`; its separate controller status supersedes the interrupted original suite. CLEVRER now waits for that recovery to complete. Queue status: `results/additional_4d_20261002/clevrer_queue.json`. This report does not invent pending scores.
 
 ## Coverage of all 14 additions
 
 | Benchmark | Verified state | Remaining requirement for a complete model result |
 |---|---|---|
 | MotionBench | Real model smoke complete; full DEV running | Finish queued GPU work |
-| TempCompass | Real model smoke complete; full MC running | Finish queued GPU work |
-| 4D-Bench | Real multiview model smoke complete; full QA running | Finish queued GPU work |
+| TempCompass | Full MC complete in all three modes | None for this split and protocol |
+| 4D-Bench | Full multiview QA complete in all three modes | None for this split and protocol |
 | CLEVRER | Real model smoke complete; full validation queued | Finish queued GPU work |
 | MVVBench | Real two-view model smoke complete | Remaining source videos; no full-split result yet |
 | Physion V1.5 | Real OCP box features + official readout complete on smoke subset | Full release run; OCD not implemented |
@@ -52,7 +54,8 @@ Local run roots: `results/additional_4d_20261002/{smoke,mvv_smoke,physion_smoke,
 
 ## Verification
 
-- The complete repository test suite passed: 123 tests, including decoder recovery and official Physion short-video clipping.
+- The complete repository test suite passed: 124 tests, including decoder recovery, official Physion short-video clipping and MotionBench single-option retention.
+- Public answer constraints were checked on every prepared question: MotionBench 4,018; TempCompass 1,580; 4D-Bench 751; CLEVRER 125,852.
 - Official MotionBench scoring exactly matches the real 12-item box-mode result.
 - TempCompass matching and 4D-Bench parsing agree with upstream on tested edge cases.
 - ADT, TAPVid-3D and V-STaR scorer fixtures are **synthetic metric checks**, not checkpoint evaluations.

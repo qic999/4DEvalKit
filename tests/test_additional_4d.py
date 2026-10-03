@@ -22,6 +22,24 @@ def test_motionbench_hidden_test_not_scored(tmp_path):
     assert adapter.compute_statistics(adapter.evaluate_results([samples[0]['sample']], ['B']))['overall_accuracy'] == 0
 
 
+def test_motionbench_retains_released_single_option_question(tmp_path):
+    from core.response_constraints import response_constraint
+    p = tmp_path/'meta.jsonl'
+    question = 'Describe the action.\nA. Fingers form a "3", walk forward.'
+    p.write_text(json.dumps(dict(question_type='Action Order', video_path='v.mp4', qa=[
+        dict(uid='single', question=question, answer='A')])))
+    session = BenchmarkSession(get_spec('MotionBench'), data=str(p))
+    sample = next(session.batches())[0]
+    assert session.selected_count == 1
+    assert response_constraint('MotionBench', sample['question']) == {'choice': ['A']}
+    score = session.adapter.evaluate_results([sample['sample']], ['A'])
+    assert session.adapter.compute_statistics(score)['overall_accuracy'] == 1
+    with pytest.raises(ValueError, match='contiguous'):
+        response_constraint('MotionBench', 'Describe the action.\nB. Running.')
+    with pytest.raises(ValueError, match='contiguous'):
+        response_constraint('BLINK', question)
+
+
 def test_clevrer_whole_question_groups_and_scoring(tmp_path):
     p = tmp_path/'val.json'
     p.write_text(json.dumps([dict(scene_index=10, video_filename='v.mp4', questions=[dict(
