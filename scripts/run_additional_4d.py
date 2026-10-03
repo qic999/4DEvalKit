@@ -32,6 +32,7 @@ def main():
     out = Path(args.output).resolve(); out.mkdir(parents=True, exist_ok=True)
     state = {'phase': 'encoding', 'pid': os.getpid(), 'jobs': {}, 'workers': {}}
     guard = threading.RLock(); children = []; pool = None
+    stopping = threading.Event()
 
     def update(group, name, **fields):
         with guard:
@@ -39,18 +40,22 @@ def main():
             state['updated'] = time.time(); write_json(out/'status.json', state)
 
     def run(command, log, gpu=None):
+        if stopping.is_set(): raise RuntimeError('Suite is stopping')
         env = dict(os.environ, PYTHONUNBUFFERED='1', OMP_NUM_THREADS='2', MKL_NUM_THREADS='2',
                    OPENBLAS_NUM_THREADS='2', TOKENIZERS_PARALLELISM='false',
                    PYTORCH_CUDA_ALLOC_CONF='expandable_segments:True', PYTHONPATH=str(ROOT))
         if gpu is not None: env['CUDA_VISIBLE_DEVICES'] = str(gpu)
         log.parent.mkdir(parents=True, exist_ok=True)
         with log.open('ab') as stream:
-            child = subprocess.Popen(list(map(str, command)), cwd=ROOT, env=env,
-                stdout=stream, stderr=subprocess.STDOUT, stdin=subprocess.DEVNULL, start_new_session=True)
-        with guard: children.append(child)
+            with guard:
+                if stopping.is_set(): raise RuntimeError('Suite is stopping')
+                child = subprocess.Popen(list(map(str, command)), cwd=ROOT, env=env,
+                    stdout=stream, stderr=subprocess.STDOUT, stdin=subprocess.DEVNULL, start_new_session=True)
+                children.append(child)
         if child.wait(): raise RuntimeError(f'Process failed; inspect {log}')
 
     def stop(signum=None, frame=None):
+        stopping.set()
         for child in children:
             if child.poll() is None:
                 try: os.killpg(child.pid, signal.SIGTERM)
@@ -89,6 +94,7 @@ def main():
         try:
             wait_for_free_gpu(gpu, lambda gpu, **kw: update('workers', gpu, **kw))
             while True:
+                if stopping.is_set(): return
                 try: job = jobs.get_nowait()
                 except queue.Empty: return
                 name = job['benchmark']; folder = out/name

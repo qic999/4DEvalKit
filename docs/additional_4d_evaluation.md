@@ -143,3 +143,5 @@ object GT. HOI4D's official task repository exposes a submission interface, not
 a local object-tracking scorer. MLLM-4D's inspected test ZIP contains videos but
 no independent QA labels. DA4D still needs a usable evaluation release. These
 remaining requirements are recorded individually in the runtime report.
+
+Video decoding uses an explicit PyAV fallback when OpenCV random seeking fails. It samples actual decoded frames and PTS rather than phantom container frame indices. Install the root requirements in all three environments (toolkit, detector and encoder) so this fallback is available consistently. Decoder errors still fail the sample.

@@ -200,6 +200,23 @@ def main():
         if (out/'config.json').exists() and read_json(out/'config.json') != config:
             raise ValueError('Encoder configuration changed; use a fresh output')
         write_json(out/'config.json', config)
+        # Resume completed shards without loading GPU weights again. Verify all
+        # per-record identities before reassembling the cached scene bundle.
+        if index.get('complete'):
+            cached = {}
+            for path in records:
+                record = read_json(path)
+                result_path = out/'samples'/(record['sample_id'].replace(':','_')+'.json')
+                if not result_path.is_file(): break
+                result = read_json(result_path)
+                if result['fingerprint'] != digest({'proposal': record, 'config': config}):
+                    raise ValueError('Input changed since previous geometry inference')
+                cached[record['sample_id']] = result['scene']
+            if len(cached) == len(records):
+                write_json(out/'geometry.json', {'scenes': cached})
+                write_json(out/'status.json', {'pid': os.getpid(), 'phase': 'complete',
+                    'completed': len(cached), 'total': len(records), 'reused_without_model_load': True})
+                return
         model_args = SimpleNamespace(sam3_checkpoint=None, checkpoint=args.checkpoint, device='cuda',
             model_profile=args.profile, spatial_resolution=args.spatial_resolution,
             model_image_size=args.model_image_size, multiplex_count=1, use_fa3=False,

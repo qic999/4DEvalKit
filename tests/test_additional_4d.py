@@ -92,3 +92,23 @@ def test_physion_fixed_features_preserve_repeated_initial_observation():
     assert np.array_equal(features[0],features[1]) and np.array_equal(features[1],features[2])
     assert features[3,0]==15 and features[0,-1]==1
     assert np.isfinite(box_features({},[0,15,30,45])).all()
+
+
+def test_video_seek_failure_uses_actual_frames_and_pts(tmp_path,monkeypatch):
+    import av
+    import numpy as np
+    from scripts import media_inputs
+    p=tmp_path/'clip.mp4'
+    with av.open(str(p),'w') as container:
+        stream=container.add_stream('mpeg4',rate=5);stream.width=16;stream.height=16;stream.pix_fmt='yuv420p'
+        for i in range(3):
+            frame=av.VideoFrame.from_ndarray(np.full((16,16,3),i*40,dtype=np.uint8),format='rgb24')
+            for packet in stream.encode(frame):container.mux(packet)
+        for packet in stream.encode():container.mux(packet)
+    def bad_seek(*args,**kwargs):raise media_inputs.VideoReadError('bad container frame count')
+    monkeypatch.setattr(media_inputs,'_read_video',bad_seek)
+    images,frames=media_inputs.read_frames({'media':{'video':{'path':str(p)}}},16,read_attempts=1)
+    assert len(images)==3
+    assert [r['frame_index'] for r in frames]==[0,1,2]
+    assert [r['timestamp'] for r in frames]==pytest.approx([0,.2,.4])
+    assert all(r['decoded_frame_count']==3 for r in frames)

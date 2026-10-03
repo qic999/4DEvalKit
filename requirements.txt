@@ -8,3 +8,4 @@ tqdm>=4.66
 sacrebleu>=2,<3
 networkx>=3
 opencv-python-headless>=4.8
+av>=14,<17

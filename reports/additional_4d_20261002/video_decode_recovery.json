@@ -1,0 +1,68 @@
+[
+  {
+    "video": "qPhYS0IxSjrp5bGu.mp4",
+    "sampled": 16,
+    "first": {
+      "path": "/mnt/ccvl15/qichen/cvpr27/eval/4DEvalKit/data/additional_4d/MotionBench/MotionBench/self-collected/qPhYS0IxSjrp5bGu.mp4",
+      "frame_index": 0,
+      "timestamp": 0.0,
+      "view_id": "frame_0",
+      "decoding": "pyav_actual_frames_pts_v1",
+      "container_frame_count": 260,
+      "decoded_frame_count": 245
+    },
+    "last": {
+      "path": "/mnt/ccvl15/qichen/cvpr27/eval/4DEvalKit/data/additional_4d/MotionBench/MotionBench/self-collected/qPhYS0IxSjrp5bGu.mp4",
+      "frame_index": 244,
+      "timestamp": 10.166666666666666,
+      "view_id": "frame_244",
+      "decoding": "pyav_actual_frames_pts_v1",
+      "container_frame_count": 260,
+      "decoded_frame_count": 245
+    }
+  },
+  {
+    "video": "rRu1CLGvm3Edr8Wf.mp4",
+    "sampled": 16,
+    "first": {
+      "path": "/mnt/ccvl15/qichen/cvpr27/eval/4DEvalKit/data/additional_4d/MotionBench/MotionBench/self-collected/rRu1CLGvm3Edr8Wf.mp4",
+      "frame_index": 0,
+      "timestamp": 0.0,
+      "view_id": "frame_0",
+      "decoding": "pyav_actual_frames_pts_v1",
+      "container_frame_count": 694,
+      "decoded_frame_count": 471
+    },
+    "last": {
+      "path": "/mnt/ccvl15/qichen/cvpr27/eval/4DEvalKit/data/additional_4d/MotionBench/MotionBench/self-collected/rRu1CLGvm3Edr8Wf.mp4",
+      "frame_index": 470,
+      "timestamp": 18.88,
+      "view_id": "frame_470",
+      "decoding": "pyav_actual_frames_pts_v1",
+      "container_frame_count": 694,
+      "decoded_frame_count": 471
+    }
+  },
+  {
+    "video": "lmMzW1PkMDT366pU.mp4",
+    "sampled": 16,
+    "first": {
+      "path": "/mnt/ccvl15/qichen/cvpr27/eval/4DEvalKit/data/additional_4d/MotionBench/MotionBench/self-collected/lmMzW1PkMDT366pU.mp4",
+      "frame_index": 0,
+      "timestamp": 0.0,
+      "view_id": "frame_0",
+      "decoding": "pyav_actual_frames_pts_v1",
+      "container_frame_count": 245,
+      "decoded_frame_count": 119
+    },
+    "last": {
+      "path": "/mnt/ccvl15/qichen/cvpr27/eval/4DEvalKit/data/additional_4d/MotionBench/MotionBench/self-collected/lmMzW1PkMDT366pU.mp4",
+      "frame_index": 118,
+      "timestamp": 3.933333333333333,
+      "view_id": "frame_118",
+      "decoding": "pyav_actual_frames_pts_v1",
+      "container_frame_count": 245,
+      "decoded_frame_count": 119
+    }
+  }
+]

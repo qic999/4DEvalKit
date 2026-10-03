@@ -20,10 +20,10 @@ Physion OCP also completed real geometry inference and the official logistic rea
 
 - **Running:** TempCompass (1,580 QA), 4D-Bench (751 QA), MotionBench labeled DEV (4,018 QA / 2,706 clips), all three observation modes. Seven GPU workers; complete-video sharding and prediction reuse across questions.
 - **Queued after those runs:** CLEVRER validation, all 5,000 videos and 125,852 descriptive/candidate answer records, all three modes.
-- **Physion full OCP:** archive preparation is running; the complete box-feature/readout evaluation is queued on GPU 7 once preparation succeeds. Queue status: `results/additional_4d_20261002/physion_queue.json`.
+- **Physion full OCP running:** all 5,608 readout-training clips and 1,035 test clips are prepared. The complete box-feature/readout evaluation is running on GPU 7. Queue status: `results/additional_4d_20261002/physion_queue.json`.
 - **MVVBench full split:** still needs the remaining EgoExo4D, MMPTRACK and Panoptic source videos. Only the explicit Panoptic smoke subset has been executed.
 
-Local run roots: `results/additional_4d_20261002/{smoke,mvv_smoke,physion_smoke,full,clevrer_full}`. Queue status: `results/additional_4d_20261002/clevrer_queue.json`. The full-run state is live in `status.json`; this report does not invent pending scores.
+Local run roots: `results/additional_4d_20261002/{smoke,mvv_smoke,physion_smoke,full,clevrer_full,physion_full}`. Queue status: `results/additional_4d_20261002/clevrer_queue.json`. The full-run state is live in `status.json`; this report does not invent pending scores.
 
 ## Coverage of all 14 additions
 
@@ -46,7 +46,7 @@ Local run roots: `results/additional_4d_20261002/{smoke,mvv_smoke,physion_smoke,
 
 ## Verification
 
-- 115 repository tests passed across the sandbox-compatible run and the local-network/cache rerun.
+- The complete repository test suite passed: 116 tests, including decoder recovery.
 - Official MotionBench scoring exactly matches the real 12-item box-mode result.
 - TempCompass matching and 4D-Bench parsing agree with upstream on tested edge cases.
 - ADT, TAPVid-3D and V-STaR scorer fixtures are **synthetic metric checks**, not checkpoint evaluations.
@@ -54,3 +54,5 @@ Local run roots: `results/additional_4d_20261002/{smoke,mvv_smoke,physion_smoke,
 - The MLLM-4D test ZIP directory was inspected at dataset revision `80c03a70c2d2cbe1088ee530ebfb4c512c7bd8f2`; no independent QA annotations were present.
 
 [Machine-readable evidence](runtime.json) · [Usage](../../docs/additional_4d_evaluation.md) · [Pinned upstream sources](../upstream_eval_audit_20261002/manifest.json)
+
+MotionBench full-run decoding recovery: some released containers overstate their frame count. The reader now falls back to two-pass PyAV decoding and actual presentation timestamps, recording both declared and decoded frame counts. Three previously failing clips recovered all 16 requested observations; no questions were removed.

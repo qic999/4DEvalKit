@@ -48,10 +48,61 @@ def read_frames(row, video_frames=16, *, read_attempts=3):
             return _read_video(paths[0], row.get('input_metadata', {}), video_frames)
         except (VideoReadError, OSError, cv2.error) as exc:
             if attempt + 1 == read_attempts:
-                raise VideoReadError(f'Cannot read video after {read_attempts} attempts: {paths[0]}') from exc
+                logging.getLogger(__name__).warning('Using sequential PTS decoding for %s: %s', paths[0], exc)
+                try:
+                    return _read_video_pyav(paths[0], row.get('input_metadata', {}), video_frames)
+                except Exception as fallback_error:
+                    raise VideoReadError(f'Cannot read video with either decoder: {paths[0]}') from fallback_error
             logging.getLogger(__name__).warning('Retrying video read %s (%d/%d): %s',
                                                paths[0], attempt + 1, read_attempts, exc)
             time.sleep(attempt + 1)
+
+
+def _read_video_pyav(path, meta, video_frames):
+    """Decode actual frames/PTS when container counts or random seeking fail.
+
+Some released MotionBench clips declare more frames than exist in the stream.
+Scan without retaining images, then decode selected frames in a second pass.
+Codec errors still fail the sample; no black frames or question dropping.
+"""
+    import av
+    timestamps = []
+    with av.open(str(path)) as container:
+        declared = container.streams.video[0].frames
+        for frame in container.decode(video=0):
+            if frame.time is None or not np.isfinite(frame.time):
+                raise VideoReadError('Decoded frame lacks a finite presentation timestamp')
+            timestamps.append(float(frame.time))
+    if not timestamps or any(b <= a for a,b in zip(timestamps,timestamps[1:])):
+        raise VideoReadError('No strictly ordered decoded video timestamps')
+    times = np.asarray(timestamps) - timestamps[0]
+    start = float(meta.get('time_start') or 0)
+    end = float(meta['time_end']) if meta.get('time_end') is not None else times[-1]
+    if not np.isfinite(start) or not np.isfinite(end) or start < 0 or end < start:
+        raise ValueError('Invalid requested video interval')
+    if 'frame_indices' in meta:
+        indices = np.asarray(meta['frame_indices'])
+        if (indices.ndim != 1 or not len(indices) or not np.issubdtype(indices.dtype,np.integer)
+                or np.any(indices < 0) or np.any(indices >= len(times)) or np.any(np.diff(indices) <= 0)):
+            raise ValueError('Explicit frame_indices fall outside decoded video')
+    elif start == end:
+        if start > times[-1] + 1e-8: raise ValueError('Requested timestamp is outside decoded video')
+        indices = np.asarray([int(np.abs(times-start).argmin())])
+    else:
+        available = np.flatnonzero((times >= start-1e-8) & (times <= end+1e-8))
+        if not len(available): raise ValueError('Requested interval is outside decoded video')
+        indices = available[np.unique(np.linspace(0,len(available)-1,min(video_frames,len(available))).round().astype(int))]
+    selected = set(map(int,indices)); images, frames = [], []
+    with av.open(str(path)) as container:
+        for index, frame in enumerate(container.decode(video=0)):
+            if index in selected:
+                images.append(frame.to_image().convert('RGB'))
+                frames.append(dict(path=str(Path(path).resolve()),frame_index=index,timestamp=float(times[index]),
+                    view_id=f'frame_{index}',decoding='pyav_actual_frames_pts_v1',
+                    container_frame_count=declared,decoded_frame_count=len(times)))
+            if index >= indices[-1]: break
+    if len(images) != len(indices): raise VideoReadError('Decoded video changed between passes')
+    return images,frames
 
 
 def _read_video(path, meta, video_frames):
