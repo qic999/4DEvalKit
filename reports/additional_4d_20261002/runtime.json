@@ -458,6 +458,118 @@
         "size": 4635750,
         "mtime_ns": 1790996303334629162
       }
+    },
+    {
+      "benchmark": "MotionBench",
+      "mode": "boxes",
+      "samples": 4018,
+      "score_100": 41.66251866600298,
+      "available_count": 4018,
+      "partial": false,
+      "status_counts": {
+        "ok": 4018
+      },
+      "finish_reasons": [
+        "stop"
+      ],
+      "protocol": "motionbench_labeled_dev_exact_v1",
+      "source": {
+        "path": "/mnt/ccvl15/qichen/cvpr27/eval/4DEvalKit/results/additional_4d_20261002/full/MotionBench/qa/boxes.json",
+        "size": 21092819,
+        "mtime_ns": 1791004006470844168
+      }
     }
-  ]
+  ],
+  "full_physion": {
+    "benchmark": "Physion V1.5",
+    "task": "OCP",
+    "representation": "predicted box features",
+    "readout": "pinned official logistic regression",
+    "reasoner": null,
+    "train_clips": 5608,
+    "test_clips": 1035,
+    "partial": false,
+    "primary_metric": {
+      "field": "full_test_sce_acc",
+      "aggregation": "unweighted mean of seven test scenario accuracies",
+      "score_100": 58.6419623445947
+    },
+    "scenario_test_counts": {
+      "collision": 105,
+      "drop": 157,
+      "towers": 147,
+      "link": 157,
+      "roll": 157,
+      "contain": 153,
+      "dominoes": 159
+    },
+    "scenario_score_100": {
+      "collision": 71.42857142857143,
+      "drop": 50.955414012738856,
+      "towers": 72.78911564625851,
+      "link": 54.14012738853503,
+      "roll": 45.22292993630573,
+      "contain": 56.209150326797385,
+      "dominoes": 59.74842767295597
+    },
+    "feature_shapes": {
+      "train": [
+        5608,
+        4,
+        45
+      ],
+      "test": [
+        1035,
+        4,
+        45
+      ]
+    },
+    "checks": {
+      "complete_feature_coverage": true,
+      "finite_features": true,
+      "disjoint_train_test_media_paths": true,
+      "complete_scenario_coverage": true,
+      "matches_official_result_file": true
+    },
+    "statistics": {
+      "clf__C": 0.1,
+      "clf__penalty": "l2",
+      "train": 0.6387303851640513,
+      "collision_test": 0.7142857142857143,
+      "drop_test": 0.5095541401273885,
+      "towers_test": 0.7278911564625851,
+      "link_test": 0.5414012738853503,
+      "roll_test": 0.45222929936305734,
+      "contain_test": 0.5620915032679739,
+      "dominoes_test": 0.5974842767295597,
+      "full_test_sce_acc": 0.586419623445947
+    },
+    "source": {
+      "path": "/mnt/ccvl15/qichen/cvpr27/eval/4DEvalKit/results/additional_4d_20261002/physion_full/readout.json",
+      "size": 1248,
+      "mtime_ns": 1791008103608833282
+    }
+  },
+  "status_snapshot": {
+    "checked_at_epoch_seconds": 1791015130.467759,
+    "MotionBench": {
+      "boxes": {
+        "valid_answers": 4018,
+        "total": 4018,
+        "phase": "complete"
+      },
+      "rgb": {
+        "valid_answers": 3840,
+        "total": 4018,
+        "phase": "running"
+      },
+      "rgb_boxes": {
+        "valid_answers": 3840,
+        "total": 4018,
+        "phase": "running"
+      }
+    },
+    "Physion": "complete",
+    "CLEVRER": "queued"
+  }
 }

@@ -20,15 +20,39 @@ Physion OCP also completed real geometry inference and the official logistic rea
 
 Completed full-split results (same checkpoint/reasoner as above):
 
-| Benchmark | Valid answers per mode / full split | Boxes (%) | RGB (%) | RGB + boxes (%) |
+| Benchmark | Full split size | Boxes (%) | RGB (%) | RGB + boxes (%) |
 |---|---:|---:|---:|---:|
-| TempCompass | 1,580 / 1,580 | 42.41 | 69.87 | 70.38 |
-| 4D-Bench | 751 / 751 | 34.62 | 66.31 | 66.05 |
+| TempCompass | 1,580 | 42.41 | 69.87 | 70.38 |
+| 4D-Bench | 751 | 34.62 | 66.31 | 66.05 |
+| MotionBench labeled DEV | 4,018 | 41.66 | Pending | Pending |
+
+Every reported QA score covers its complete split with valid, non-truncated
+answers. Pending modes have no published full-split score.
+
+**Physion V1.5 OCP is complete:** 5,608 readout-training clips and 1,035 test
+clips, with **58.64% mean scenario accuracy**. This run uses predicted box
+features and the official logistic readout, separately from LLM reasoning.
+The primary metric is the unweighted mean of the seven scenario accuracies,
+not the accuracy weighted by the number of clips.
+
+| Physion test scenario | Test clips | Accuracy (%) |
+|---|---:|---:|
+| Collision | 105 | 71.43 |
+| Drop | 157 | 50.96 |
+| Towers | 147 | 72.79 |
+| Link | 157 | 54.14 |
+| Roll | 157 | 45.22 |
+| Contain | 153 | 56.21 |
+| Dominoes | 159 | 59.75 |
+| **Mean across scenarios** | **1,035 total** | **58.64** |
+
+[Physion full-result evidence](physion_full.json) records feature coverage,
+per-scenario counts, readout settings and the source result.
 
 - **Complete:** TempCompass and 4D-Bench, all three observation modes. Every answer passed coverage, syntax and non-truncation checks.
-- **Resuming:** MotionBench labeled DEV (4,018 QA / 2,706 clips), all three observation modes. The release contains one single-option question; the parser now accepts its public option without dropping the question or changing labels. Each mode retained 1,920 valid answers at recovery launch. All 4,018 geometry predictions are complete. Seven GPU reasoners; recovery status: `results/additional_4d_20261002/motionbench_recovery/status.json`.
+- **MotionBench:** boxes complete; RGB and RGB + boxes each have 3,840 / 4,018 valid answers at this snapshot. The release contains one single-option question; the parser accepts its public option without dropping the question or changing labels. All 4,018 geometry predictions are complete. Recovery status: `results/additional_4d_20261002/motionbench_recovery/status.json`.
 - **Queued after those runs:** CLEVRER validation, all 5,000 videos and 125,852 descriptive/candidate answer records, all three modes.
-- **Physion full OCP running:** all 5,608 readout-training clips and 1,035 test clips are prepared. The complete box-feature/readout evaluation is running on GPU 7. Queue status: `results/additional_4d_20261002/physion_queue.json`.
+- **Physion full OCP complete:** all 5,608 readout-training clips and 1,035 test clips have predicted geometry and exported features; the official readout has finished. Result: `results/additional_4d_20261002/physion_full/readout.json`.
 - **MVVBench full split:** still needs the remaining EgoExo4D, MMPTRACK and Panoptic source videos. Only the explicit Panoptic smoke subset has been executed.
 
 Local run roots: `results/additional_4d_20261002/{smoke,mvv_smoke,physion_smoke,full,motionbench_recovery,clevrer_full,physion_full}`. MotionBench recovery reuses its original geometry and QA journals under `full/MotionBench`; its separate controller status supersedes the interrupted original suite. CLEVRER now waits for that recovery to complete. Queue status: `results/additional_4d_20261002/clevrer_queue.json`. This report does not invent pending scores.
@@ -37,12 +61,12 @@ Local run roots: `results/additional_4d_20261002/{smoke,mvv_smoke,physion_smoke,
 
 | Benchmark | Verified state | Remaining requirement for a complete model result |
 |---|---|---|
-| MotionBench | Real model smoke complete; full DEV running | Finish queued GPU work |
+| MotionBench | Full DEV boxes complete; RGB / RGB + boxes running | Finish remaining RGB QA |
 | TempCompass | Full MC complete in all three modes | None for this split and protocol |
 | 4D-Bench | Full multiview QA complete in all three modes | None for this split and protocol |
 | CLEVRER | Real model smoke complete; full validation queued | Finish queued GPU work |
 | MVVBench | Real two-view model smoke complete | Remaining source videos; no full-split result yet |
-| Physion V1.5 | Real OCP box features + official readout complete on smoke subset | Full release run; OCD not implemented |
+| Physion V1.5 | Full OCP box features + official readout complete | OCD not implemented |
 | ADT | Official numerical scorer executed on perfect/displaced pose fixtures | Held-out GT archive, object prototype IDs and object-frame pose alignment |
 | HOI4D | Official preprocessing/submission interface inspected | Test data + submission-format predictor; no released local tracking scorer in inspected repo |
 | HOT3D | Official evaluator launcher; current test clip actually inspected | Test object GT is absent; native object-model pose predictions and upstream environment |
@@ -56,6 +80,7 @@ Local run roots: `results/additional_4d_20261002/{smoke,mvv_smoke,physion_smoke,
 
 - The complete repository test suite passed: 124 tests, including decoder recovery, official Physion short-video clipping and MotionBench single-option retention.
 - Public answer constraints were checked on every prepared question: MotionBench 4,018; TempCompass 1,580; 4D-Bench 751; CLEVRER 125,852.
+- Seven full QA results passed exact sample coverage and final-answer audits. Physion feature arrays are finite and cover every train/test clip; scenario indices cover each split exactly once, and the reported mean matches the official readout output.
 - Official MotionBench scoring exactly matches the real 12-item box-mode result.
 - TempCompass matching and 4D-Bench parsing agree with upstream on tested edge cases.
 - ADT, TAPVid-3D and V-STaR scorer fixtures are **synthetic metric checks**, not checkpoint evaluations.
