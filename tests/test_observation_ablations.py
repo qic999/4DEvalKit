@@ -85,3 +85,38 @@ def test_ablation_gate_requires_complete_nontruncated_native_answers(tmp_path):
     result['results']=rows[:1];write_json(path,result)
     with pytest.raises(ValueError,match='Incomplete'):
         audit_answers(tmp_path)
+
+
+@pytest.mark.parametrize('mode', ['rgb', 'rgb_boxes'])
+def test_shared_visual_cache_preserves_questions_and_invalidates_inputs(tmp_path, monkeypatch, mode):
+    from core import observations
+    original = observations.visual_content
+    calls = []
+    def counted(row, **kwargs):
+        calls.append(row['sample_id'])
+        return original(row, **kwargs)
+    monkeypatch.setattr(observations, 'visual_content', counted)
+    pic = tmp_path/'frame.png'; Image.new('RGB', (20, 20), 'red').save(pic)
+    rows = [dict(sample_id=key, question=f'Question {key}?',
+                 media={'image': {'path': str(pic)}}) for key in ['a', 'b', 'c']]
+    rows[2]['input_metadata'] = {'frame_indices': [0]}
+    path = tmp_path/'manifest.json'; write_json(path, {'samples': rows})
+    loader = ObservationManifest(path, mode=mode)
+    def messages(i):
+        row = rows[i]
+        return loader.messages(row['sample_id'], row['question'], {}, max_chars=10000, decimals=4)
+    first, second = messages(0), messages(1)
+    assert calls == ['a']
+    assert first[1]['content'][:-1] == second[1]['content'][:-1] == original(rows[0])
+    assert 'Question a?' in first[1]['content'][-1]['text']
+    assert 'Question b?' in second[1]['content'][-1]['text']
+    assert 'Question a?' not in second[1]['content'][-1]['text']
+    first[1]['content'][1]['image_url']['url'] = 'mutated by caller'
+    assert messages(1) == second  # Returned messages cannot corrupt the cache.
+    messages(2)
+    assert calls == ['a', 'c']  # Sampling metadata is part of observation identity.
+    Image.new('RGB', (31, 20), 'blue').save(pic)
+    changed = messages(2)
+    assert calls == ['a', 'c', 'c']
+    assert changed[1]['content'][:-1] == original(rows[2])
+    assert changed[1]['content'][:-1] != second[1]['content'][:-1]

@@ -1,9 +1,10 @@
 """Matched visual/geometry prompts for controlled observation ablations."""
 import base64
+import copy
 import io
 import math
 
-from .io import read_json, digest
+from .io import read_json, digest, source_signature
 from .prompts import SYSTEM, make_messages
 
 VERSION = 'matched_observations_v1'
@@ -41,6 +42,7 @@ class ObservationManifest:
         if len(self.rows) != len(source['samples']):
             raise ValueError('Duplicate observation sample IDs')
         self.mode, self.max_pixels, self.video_frames = mode, max_pixels, video_frames
+        self._visual_key, self._visual_content = None, None
         self.identity = {'protocol':VERSION, 'mode':mode, 'manifest_digest':digest(source),
                          'max_image_pixels':max_pixels, 'video_frames':video_frames, 'jpeg_quality':95}
         self.captions = None
@@ -62,7 +64,18 @@ class ObservationManifest:
         messages[0]['content'] = MATCHED_SYSTEM
         content = []
         if self.mode in {'rgb', 'rgb_boxes'}:
-            content = visual_content(row, max_pixels=self.max_pixels, video_frames=self.video_frames)
+            from scripts.media_inputs import flatten_media
+            media = row['media']
+            paths = flatten_media(media['video'] if 'video' in media else media['image'])
+            visual_key = digest({'media': media, 'input_metadata': row.get('input_metadata', {}),
+                'sources': [source_signature(path) for path in paths],
+                'max_pixels': self.max_pixels, 'video_frames': self.video_frames})
+            # Adjacent questions often share a clip. Retain only one decoded
+            # observation; question text and geometry are rebuilt for every QA.
+            if visual_key != self._visual_key:
+                visual = visual_content(row, max_pixels=self.max_pixels, video_frames=self.video_frames)
+                self._visual_key, self._visual_content = visual_key, visual
+            content = copy.deepcopy(self._visual_content)
         if self.captions:
             description = self.captions.text(sample_id)
             if len(description) + len(messages[1]['content']) + 100 > max_chars:

@@ -478,6 +478,46 @@
         "size": 21092819,
         "mtime_ns": 1791004006470844168
       }
+    },
+    {
+      "benchmark": "MotionBench",
+      "mode": "rgb",
+      "samples": 4018,
+      "score_100": 61.722249875559974,
+      "available_count": 4018,
+      "partial": false,
+      "status_counts": {
+        "ok": 4018
+      },
+      "finish_reasons": [
+        "stop"
+      ],
+      "protocol": "motionbench_labeled_dev_exact_v1",
+      "source": {
+        "path": "/mnt/ccvl15/qichen/cvpr27/eval/4DEvalKit/results/additional_4d_20261002/full/MotionBench/qa/rgb.json",
+        "size": 5183463,
+        "mtime_ns": 1791015595548018793
+      }
+    },
+    {
+      "benchmark": "MotionBench",
+      "mode": "rgb_boxes",
+      "samples": 4018,
+      "score_100": 61.722249875559974,
+      "available_count": 4018,
+      "partial": false,
+      "status_counts": {
+        "ok": 4018
+      },
+      "finish_reasons": [
+        "stop"
+      ],
+      "protocol": "motionbench_labeled_dev_exact_v1",
+      "source": {
+        "path": "/mnt/ccvl15/qichen/cvpr27/eval/4DEvalKit/results/additional_4d_20261002/full/MotionBench/qa/rgb_boxes.json",
+        "size": 21095009,
+        "mtime_ns": 1791015703102533412
+      }
     }
   ],
   "full_physion": {
@@ -551,7 +591,7 @@
     }
   },
   "status_snapshot": {
-    "checked_at_epoch_seconds": 1791015130.467759,
+    "checked_at_epoch_seconds": 1791016834.8282297,
     "MotionBench": {
       "boxes": {
         "valid_answers": 4018,
@@ -559,17 +599,17 @@
         "phase": "complete"
       },
       "rgb": {
-        "valid_answers": 3840,
+        "valid_answers": 4018,
         "total": 4018,
-        "phase": "running"
+        "phase": "complete"
       },
       "rgb_boxes": {
-        "valid_answers": 3840,
+        "valid_answers": 4018,
         "total": 4018,
-        "phase": "running"
+        "phase": "complete"
       }
     },
     "Physion": "complete",
-    "CLEVRER": "queued"
+    "CLEVRER": "running_proposals"
   }
 }
