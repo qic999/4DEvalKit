@@ -1,0 +1,187 @@
+{
+  "benchmark": "CLEVRER",
+  "split": "validation",
+  "videos": 5000,
+  "answer_records_per_mode": 125852,
+  "whole_questions_per_mode": 76368,
+  "metric_note": "Overall question accuracy requires every candidate in a multiple-choice question to be correct. Use per-type metrics for paper comparisons.",
+  "modes": {
+    "boxes": {
+      "benchmark": "CLEVRER",
+      "mode": "boxes",
+      "samples": 125852,
+      "score_100": 14.609522313010684,
+      "available_count": 125852,
+      "partial": false,
+      "status_counts": {
+        "ok": 125852
+      },
+      "finish_reasons": [
+        "stop"
+      ],
+      "protocol": "clevrer_validation_option_and_question_v1",
+      "metric_field": "overall_question_accuracy",
+      "source": {
+        "path": "/mnt/ccvl15/qichen/cvpr27/eval/4DEvalKit/results/additional_4d_20261002/clevrer_full/CLEVRER/qa/boxes.json",
+        "size": 660936022,
+        "mtime_ns": 1791050883525329880
+      },
+      "whole_questions": 76368,
+      "per_question": {
+        "descriptive": {
+          "accuracy": 0.17483178759774504,
+          "count": 54990
+        },
+        "explanatory": {
+          "accuracy": 0.1701225259189444,
+          "count": 8488
+        },
+        "predictive": {
+          "accuracy": 0.0,
+          "count": 3557
+        },
+        "counterfactual": {
+          "accuracy": 0.010607521697203472,
+          "count": 9333
+        }
+      },
+      "per_answer_record": {
+        "descriptive": {
+          "accuracy": 0.17483178759774504,
+          "count": 54990
+        },
+        "explanatory": {
+          "accuracy": 0.504153500342053,
+          "count": 30697
+        },
+        "predictive": {
+          "accuracy": 0.49985943210570705,
+          "count": 7114
+        },
+        "counterfactual": {
+          "accuracy": 0.49956128407612477,
+          "count": 33051
+        }
+      },
+      "answer_record_accuracy": 0.3588103486635095
+    },
+    "rgb": {
+      "benchmark": "CLEVRER",
+      "mode": "rgb",
+      "samples": 125852,
+      "score_100": 50.09428032683847,
+      "available_count": 125852,
+      "partial": false,
+      "status_counts": {
+        "ok": 125852
+      },
+      "finish_reasons": [
+        "stop"
+      ],
+      "protocol": "clevrer_validation_option_and_question_v1",
+      "metric_field": "overall_question_accuracy",
+      "source": {
+        "path": "/mnt/ccvl15/qichen/cvpr27/eval/4DEvalKit/results/additional_4d_20261002/clevrer_full/CLEVRER/qa/rgb.json",
+        "size": 162616626,
+        "mtime_ns": 1791049582698817882
+      },
+      "whole_questions": 76368,
+      "per_question": {
+        "descriptive": {
+          "accuracy": 0.6277505000909256,
+          "count": 54990
+        },
+        "explanatory": {
+          "accuracy": 0.2054665409990575,
+          "count": 8488
+        },
+        "predictive": {
+          "accuracy": 0.30981163902164743,
+          "count": 3557
+        },
+        "counterfactual": {
+          "accuracy": 0.09536054859102111,
+          "count": 9333
+        }
+      },
+      "per_answer_record": {
+        "descriptive": {
+          "accuracy": 0.6277505000909256,
+          "count": 54990
+        },
+        "explanatory": {
+          "accuracy": 0.5442225624653875,
+          "count": 30697
+        },
+        "predictive": {
+          "accuracy": 0.61175147596289,
+          "count": 7114
+        },
+        "counterfactual": {
+          "accuracy": 0.4955674563553296,
+          "count": 33051
+        }
+      },
+      "answer_record_accuracy": 0.5717588913962433
+    },
+    "rgb_boxes": {
+      "benchmark": "CLEVRER",
+      "mode": "rgb_boxes",
+      "samples": 125852,
+      "score_100": 43.55358265241986,
+      "available_count": 125852,
+      "partial": false,
+      "status_counts": {
+        "ok": 125852
+      },
+      "finish_reasons": [
+        "stop"
+      ],
+      "protocol": "clevrer_validation_option_and_question_v1",
+      "metric_field": "overall_question_accuracy",
+      "source": {
+        "path": "/mnt/ccvl15/qichen/cvpr27/eval/4DEvalKit/results/additional_4d_20261002/clevrer_full/CLEVRER/qa/rgb_boxes.json",
+        "size": 661082841,
+        "mtime_ns": 1791079495648493793
+      },
+      "whole_questions": 76368,
+      "per_question": {
+        "descriptive": {
+          "accuracy": 0.5375704673577014,
+          "count": 54990
+        },
+        "explanatory": {
+          "accuracy": 0.20982563619227143,
+          "count": 8488
+        },
+        "predictive": {
+          "accuracy": 0.34242339049761034,
+          "count": 3557
+        },
+        "counterfactual": {
+          "accuracy": 0.0751098253509054,
+          "count": 9333
+        }
+      },
+      "per_answer_record": {
+        "descriptive": {
+          "accuracy": 0.5375704673577014,
+          "count": 54990
+        },
+        "explanatory": {
+          "accuracy": 0.5541909632863147,
+          "count": 30697
+        },
+        "predictive": {
+          "accuracy": 0.6149845375316277,
+          "count": 7114
+        },
+        "counterfactual": {
+          "accuracy": 0.5027987050316178,
+          "count": 33051
+        }
+      },
+      "answer_record_accuracy": 0.5368687029208912
+    }
+  }
+}
