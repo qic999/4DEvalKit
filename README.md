@@ -4,15 +4,49 @@ Evaluate spatial perception and reasoning on images, multiple views, and video.
 Choose a workflow below to score 3D boxes directly or answer benchmark questions
 from RGB, geometry, captions, or combinations of these inputs.
 
-| Evaluation area | Benchmarks and toolkit status | Official evaluation code | Evaluation scope |
+| Evaluation area | Dataset / benchmark | Status | Scope |
 |---|---|---|---|
-| [3D Perception](#3d-perception) | **Ready:** ScanNet; Argoverse 2; Omni3D (KITTI, nuScenes, SUNRGBD, Hypersim, ARKitScenes, Objectron); WildDet3D-Bench. | Uses the pinned WildDet3D evaluator; see [scoring setup](docs/perception_evaluation.md). | Direct, box-conditioned 3D regression: canonical ODS, oriented 3D IoU AP, and center-distance AP. |
-| [3D Reasoning](#3d-reasoning) | **Ready:** BLINK (spatial subset); CV-Bench; 3DSRBench; EmbSpatial-Bench; Q-Spatial-Bench; MindCube; MMSI-Bench; ViewSpatial-Bench; VSI-Bench; SAT. | Benchmark-specific scoring adapters; see [metric protocols](docs/metric_protocols.md). | Spatial QA on images, multiple views, static-scene videos, and action-conditioned questions. |
-| [4D Perception](#4d-perception) | **Ready:** Stereo4D (per-frame 3D boxes).<br>**Not ready:** ADT; HOI4D Object Tracking; HOT3D / BOP; nuScenes Tracking; TAPVid-3D; DA4D / DetAny4D. | ADT needs held-out GT and object-frame pose predictions; TAPVid-3D needs queried point trajectories and visibility. HOT3D / nuScenes require native predictions, GT and upstream environments. HOI4D has no released local tracking scorer in the inspected repository. [Setup and limits](docs/additional_4d_evaluation.md#perception-and-grounding-scorers). | Stereo4D measures per-frame 3D box AP. Additional pose, point-trajectory and tracking interfaces require their native output formats; their complete model evaluations remain pending. |
-| [4D Reasoning](#4d-reasoning) | **Ready:** STI-Bench; VLM4D (real_mc, synthetic_mc); DSI-Bench (std, all augmentations); TempCompass (MC); 4D-Bench; MotionBench (labeled DEV); CLEVRER (validation); Physion V1.5 (OCP).<br>**Not ready:** MVVBench; V-STaR; MLLM4D-Bench. | MotionBench, TempCompass and 4D-Bench scoring checked against upstream code. CLEVRER retains option/question metrics; MVVBench uses a local exact-choice scorer; Physion invokes the official readout. V-STaR still needs actual grounding predictions and its semantic judge. [Runtime coverage](reports/additional_4d_20261002/comparison.md). | Motion, temporal order, causal/counterfactual QA, multiview video QA, and physical contact prediction. All five added QA workflows passed real model smoke tests in **boxes / RGB / RGB + boxes** modes; Physion completed its separate full box-feature OCP readout. Full results are available for TempCompass, 4D-Bench, MotionBench, CLEVRER and Physion OCP. MVVBench needs the remaining source videos. |
+| [3D Perception](#3d-perception) | [ScanNet](scripts/prepare_wilddet3d_perception.py) | Ready | Box-conditioned 3D regression |
+| [3D Perception](#3d-perception) | [Argoverse 2](scripts/prepare_wilddet3d_perception.py) | Ready | Box-conditioned 3D regression |
+| [3D Perception](#3d-perception) | [KITTI (Omni3D)](scripts/wilddet3d_protocol.py) | Ready | Omni3D test split; 3D box scoring |
+| [3D Perception](#3d-perception) | [nuScenes (Omni3D)](scripts/wilddet3d_protocol.py) | Ready | Omni3D test split; 3D box scoring |
+| [3D Perception](#3d-perception) | [SUNRGBD (Omni3D)](scripts/wilddet3d_protocol.py) | Ready | Omni3D test split; 3D box scoring |
+| [3D Perception](#3d-perception) | [Hypersim (Omni3D)](scripts/wilddet3d_protocol.py) | Ready | Omni3D test split; 3D box scoring |
+| [3D Perception](#3d-perception) | [ARKitScenes (Omni3D)](scripts/wilddet3d_protocol.py) | Ready | Omni3D test split; 3D box scoring |
+| [3D Perception](#3d-perception) | [Objectron (Omni3D)](scripts/wilddet3d_protocol.py) | Ready | Omni3D test split; 3D box scoring |
+| [3D Perception](#3d-perception) | [WildDet3D-Bench](scripts/prepare_wilddet3d_itw.py) | Ready | In-the-wild 3D boxes |
+| [3D Reasoning](#3d-reasoning) | [BLINK](benchmark/physbrain/blink.py) | Ready | Spatial subset |
+| [3D Reasoning](#3d-reasoning) | [CV-Bench](benchmark/physbrain/cvbench.py) | Ready | Visual-spatial QA |
+| [3D Reasoning](#3d-reasoning) | [3DSRBench](benchmark/physbrain/threedsrbench.py) | Ready | 3D spatial reasoning |
+| [3D Reasoning](#3d-reasoning) | [EmbSpatial-Bench](benchmark/physbrain/embspatial.py) | Ready | Embodied spatial QA |
+| [3D Reasoning](#3d-reasoning) | [Q-Spatial-Bench](benchmark/physbrain/qspatial.py) | Ready | Quantitative spatial reasoning |
+| [3D Reasoning](#3d-reasoning) | [MindCube](benchmark/physbrain/mindcube.py) | Ready | Multiview spatial reasoning |
+| [3D Reasoning](#3d-reasoning) | [MMSI-Bench](benchmark/physbrain/mmsi_bench.py) | Ready | Multi-image spatial reasoning |
+| [3D Reasoning](#3d-reasoning) | [ViewSpatial-Bench](benchmark/physbrain/viewspatial.py) | Ready | Viewpoint-aware spatial reasoning |
+| [3D Reasoning](#3d-reasoning) | [VSI-Bench](benchmark/physbrain/vsibench.py) | Ready | Static-scene video spatial QA |
+| [3D Reasoning](#3d-reasoning) | [SAT](benchmark/physbrain/sat.py) | Ready | Spatial and action-conditioned QA |
+| [4D Perception](#4d-perception) | [Stereo4D](scripts/prepare_wilddet3d_stereo.py) | Ready | Per-frame 3D boxes |
+| [4D Perception](#4d-perception) | [ADT](scripts/score_official_4d.py) | Not ready | Timed object poses |
+| [4D Perception](#4d-perception) | [HOI4D Object Tracking](docs/additional_4d_evaluation.md#perception-and-grounding-scorers) | Not ready | Object tracking submission |
+| [4D Perception](#4d-perception) | [HOT3D](scripts/run_external_4d.py) | Not ready | Object poses through BOP |
+| [4D Perception](#4d-perception) | [nuScenes Tracking](scripts/run_external_4d.py) | Not ready | Global 3D object tracks |
+| [4D Perception](#4d-perception) | [TAPVid-3D](scripts/score_official_4d.py) | Not ready | Queried 3D point trajectories |
+| [4D Perception](#4d-perception) | [DA4D / DetAny4D](reports/additional_4d_20261002/comparison.md#coverage-of-all-14-additions) | Not ready | Dynamic 3D detection |
+| [4D Reasoning](#4d-reasoning) | [STI-Bench](benchmark/dynamic.py) | Ready | Spatiotemporal QA |
+| [4D Reasoning](#4d-reasoning) | [VLM4D](benchmark/dynamic.py) | Ready | real_mc and synthetic_mc |
+| [4D Reasoning](#4d-reasoning) | [DSI-Bench](benchmark/dynamic.py) | Ready | std and all augmentations |
+| [4D Reasoning](#4d-reasoning) | [TempCompass](benchmark/temporal.py) | Ready | Multiple-choice temporal QA |
+| [4D Reasoning](#4d-reasoning) | [4D-Bench](benchmark/temporal.py) | Ready | Multiview video QA |
+| [4D Reasoning](#4d-reasoning) | [MotionBench](benchmark/temporal.py) | Ready | Labeled DEV |
+| [4D Reasoning](#4d-reasoning) | [CLEVRER](benchmark/temporal.py) | Ready | Validation; descriptive and causal QA |
+| [4D Reasoning](#4d-reasoning) | [Physion V1.5](scripts/run_physion_box_readout.py) | Ready | OCP with predicted box features |
+| [4D Reasoning](#4d-reasoning) | [MVVBench](benchmark/temporal.py) | Not ready | Multiview video QA; remaining videos needed |
+| [4D Reasoning](#4d-reasoning) | [V-STaR](scripts/score_official_4d.py) | Not ready | Spatiotemporal grounding and QA |
+| [4D Reasoning](#4d-reasoning) | [MLLM4D-Bench](reports/additional_4d_20261002/comparison.md#coverage-of-all-14-additions) | Not ready | Independent 4D QA benchmark |
 
 **Ready** means evaluation can run for the listed scope. **Not ready** means
-required data or model/scoring integration is still missing. See the
+required data or model/scoring integration is still missing. Benchmark names
+link to the corresponding code or documentation. See the
 [runtime report](reports/additional_4d_20261002/comparison.md) for results and remaining requirements.
 
 Additional embodied planning, pointing, affordance, and visual-trace adapters are listed in the
