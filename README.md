@@ -40,14 +40,16 @@ from RGB, geometry, captions, or combinations of these inputs.
 | [4D Reasoning](#4d-reasoning) | [MotionBench](benchmark/temporal.py) | Ready | Labeled DEV |
 | [4D Reasoning](#4d-reasoning) | [CLEVRER](benchmark/temporal.py) | Ready | Validation; descriptive and causal QA |
 | [4D Reasoning](#4d-reasoning) | [Physion V1.5](scripts/run_physion_box_readout.py) | Ready | OCP with predicted box features |
-| [4D Reasoning](#4d-reasoning) | [MVVBench](benchmark/temporal.py) | Not ready | Multiview video QA; remaining videos needed |
-| [4D Reasoning](#4d-reasoning) | [V-STaR](scripts/score_official_4d.py) | Not ready | Spatiotemporal grounding and QA |
+| [4D Reasoning](#4d-reasoning) | [MVVBench](scripts/prepare_mvvbench.py) | Not ready | Multiview video QA; videos and one view mapping missing |
+| [4D Reasoning](#4d-reasoning) | [V-STaR](docs/vstar.md) | Not ready | Conditioned grounding and QA; runtime validation pending |
 | [4D Reasoning](#4d-reasoning) | [MLLM4D-Bench](reports/additional_4d_20261002/comparison.md#coverage-of-all-14-additions) | Not ready | Independent 4D QA benchmark |
 
 **Ready** means evaluation can run for the listed scope. **Not ready** means
 required data or model/scoring integration is still missing. Benchmark names
 link to the corresponding code or documentation. See the
 [runtime report](reports/additional_4d_20261002/comparison.md) for results and remaining requirements.
+The [remaining benchmark checklist](docs/remaining_4d.md) records the specific
+data and model requirements and current integration work.
 
 Additional embodied planning, pointing, affordance, and visual-trace adapters are listed in the
 [full benchmark matrix](docs/benchmark_matrix.md).
